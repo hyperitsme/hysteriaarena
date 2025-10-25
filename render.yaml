@@ -1,0 +1,12 @@
+
+services:
+  - type: web
+    name: hysteriaarena
+    env: node
+    plan: free
+    buildCommand: ""
+    startCommand: node server.js
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
