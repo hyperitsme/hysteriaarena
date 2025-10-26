@@ -24,7 +24,7 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 .nav-links{display:flex; gap:12px}
 .pill{padding:8px 12px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#ddd; font-size:.9rem; white-space:nowrap}
 
-/* --- AGENT CARDS --- */
+/* --- AGENT CARDS ------------------------------------------------------ */
 .grid-cards{display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:14px; margin:18px 0}
 .agent-card{position:relative; padding:16px; border:1px solid var(--border); border-radius:16px; background:linear-gradient(180deg,#11162a,#0c1120);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.02); overflow:hidden; min-height:142px}
@@ -40,7 +40,7 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 .meta3{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
 .pill-sm{padding:8px 10px; border:1px solid #2a2f49; background:#12162a; border-radius:12px; color:#dcd7cf; font-size:.82rem; display:flex; justify-content:space-between; gap:8px; white-space:nowrap}
 
-/* --- MAIN LAYOUT --- */
+/* --- MAIN LAYOUT ------------------------------------------------------ */
 .main{display:grid; grid-template-columns: minmax(0,1fr) 380px; gap:14px; margin:0 0 22px}
 .panel{border:1px solid var(--border); border-radius:18px; background:linear-gradient(180deg,#0f1322,#0b0e18); padding:14px; overflow:hidden}
 .panel h3{margin:6px 0 10px; font-size:1rem; color:#dcd7cf}
@@ -81,15 +81,27 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
   .main{grid-template-columns: 1fr}
 }
   </style>
-  <script src="assets/config.js?v=3"></script>
+  <script src="assets/config.js"></script>
 </head>
 <body>
-  <!-- Inline sprite fallback (untuk ikon tab). Atau gunakan assets/sprite.svg -->
+  <!-- inline sprite just for fallback; prefer assets/sprite.svg in <use> -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <symbol id="ic-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
-    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></symbol>
-    <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></symbol>
-    <symbol id="ic-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+    <symbol id="ic-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </symbol>
+    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+      <polyline points="2 12 12 17 22 12"/>
+      <polyline points="2 17 12 22 22 17"/>
+    </symbol>
+    <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+      <line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/>
+    </symbol>
+    <symbol id="ic-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+    </symbol>
   </svg>
 
   <header class="nav">
@@ -117,12 +129,12 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
           </div>
           <span class="live-dot">● LIVE</span>
         </div>
-        <div class="bankroll" id="gptVal">0.0000</div>
-        <div class="pct up" id="gptPct">+0.00%</div>
+        <div class="bankroll" id="gptVal">2.9215</div>
+        <div class="pct up" id="gptPct">+0.12%</div>
         <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b>0</b></div>
-          <div class="pill-sm"><span>Win</span><b>0%</b></div>
-          <div class="pill-sm"><span>Slip</span><b>0.0</b></div>
+          <div class="pill-sm"><span>Trades</span><b id="gptTrades">458</b></div>
+          <div class="pill-sm"><span>Win</span><b id="gptWin">60%</b></div>
+          <div class="pill-sm"><span>Slip</span><b id="gptSlip">13.6</b></div>
         </div>
       </article>
 
@@ -137,12 +149,12 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
           </div>
           <span class="live-dot">● LIVE</span>
         </div>
-        <div class="bankroll" id="clVal">0.0000</div>
-        <div class="pct up" id="clPct">+0.00%</div>
+        <div class="bankroll" id="clVal">1.6937</div>
+        <div class="pct up" id="clPct">+0.34%</div>
         <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b>0</b></div>
-          <div class="pill-sm"><span>Win</span><b>0%</b></div>
-          <div class="pill-sm"><span>Slip</span><b>0.0</b></div>
+          <div class="pill-sm"><span>Trades</span><b id="clTrades">431</b></div>
+          <div class="pill-sm"><span>Win</span><b id="clWin">57%</b></div>
+          <div class="pill-sm"><span>Slip</span><b id="clSlip">13.3</b></div>
         </div>
       </article>
 
@@ -157,12 +169,12 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
           </div>
           <span class="live-dot">● LIVE</span>
         </div>
-        <div class="bankroll" id="dsVal">0.0000</div>
-        <div class="pct down" id="dsPct">+0.00%</div>
+        <div class="bankroll" id="dsVal">0.7213</div>
+        <div class="pct down" id="dsPct">−0.22%</div>
         <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b>0</b></div>
-          <div class="pill-sm"><span>Win</span><b>0%</b></div>
-          <div class="pill-sm"><span>Slip</span><b>0.0</b></div>
+          <div class="pill-sm"><span>Trades</span><b id="dsTrades">446</b></div>
+          <div class="pill-sm"><span>Win</span><b id="dsWin">50%</b></div>
+          <div class="pill-sm"><span>Slip</span><b id="dsSlip">14.0</b></div>
         </div>
       </article>
 
@@ -177,12 +189,12 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
           </div>
           <span class="live-dot">● LIVE</span>
         </div>
-        <div class="bankroll" id="grVal">0.0000</div>
-        <div class="pct down" id="grPct">+0.00%</div>
+        <div class="bankroll" id="grVal">0.5308</div>
+        <div class="pct down" id="grPct">−0.18%</div>
         <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b>0</b></div>
-          <div class="pill-sm"><span>Win</span><b>0%</b></div>
-          <div class="pill-sm"><span>Slip</span><b>0.0</b></div>
+          <div class="pill-sm"><span>Trades</span><b id="grTrades">473</b></div>
+          <div class="pill-sm"><span>Win</span><b id="grWin">45%</b></div>
+          <div class="pill-sm"><span>Slip</span><b id="grSlip">13.7</b></div>
         </div>
       </article>
     </section>
@@ -200,18 +212,16 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
             </span>
           </div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="chart"></canvas>
-        </div>
+        <div class="chart-wrap"><canvas id="chart"></canvas></div>
       </article>
 
       <!-- Side console -->
       <aside class="panel neon-hover neon-blue">
         <div class="tabs">
-          <div class="tab active" data-tab="trades"><svg width="14" height="14"><use href="#ic-activity"/></svg> Live Trades</div>
-          <div class="tab" data-tab="positions"><svg width="14" height="14"><use href="#ic-layers"/></svg> Positions</div>
-          <div class="tab" data-tab="chat"><svg width="14" height="14"><use href="#ic-chat"/></svg> ModelChat</div>
-          <div class="tab" data-tab="readme"><svg width="14" height="14"><use href="#ic-file"/></svg> Readme.txt</div>
+          <div class="tab active" data-tab="trades"><svg width="14" height="14"><use href="assets/sprite.svg#ic-activity"/></svg> Live Trades</div>
+          <div class="tab" data-tab="positions"><svg width="14" height="14"><use href="assets/sprite.svg#ic-layers"/></svg> Positions</div>
+          <div class="tab" data-tab="chat"><svg width="14" height="14"><use href="assets/sprite.svg#ic-chat"/></svg> ModelChat</div>
+          <div class="tab" data-tab="readme"><svg width="14" height="14"><use href="assets/sprite.svg#ic-file"/></svg> Readme.txt</div>
         </div>
         <div class="list" id="list"></div>
       </aside>
@@ -225,208 +235,195 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
     </div>
   </main>
 
-  <!-- ===== Canvas chart (tanpa demo default) ===== -->
   <script>
-    const cv = document.getElementById('chart');
-    const ctx = cv.getContext('2d');
-    function resize(){ cv.width = cv.clientWidth * devicePixelRatio; cv.height = 360 * devicePixelRatio; }
-    addEventListener('resize', ()=>{ resize(); draw(); });
-    resize();
+  // ------------------ Chart (pure Canvas) ------------------
+  const cv = document.getElementById('chart'); const ctx = cv.getContext('2d');
+  function resize(){ cv.width = cv.clientWidth * devicePixelRatio; cv.height = 360 * devicePixelRatio; }
+  window.addEventListener('resize', ()=>{ resize(); draw(); });
+  resize();
 
-    const colors = ['#FFFFFF','#ffb080','#7a88ff','#9ad1ff'];
-    let series = [[],[],[],[]]; // gpt5, claude, deepseek, grok
+  // colors: white, orange, indigo, light-blue
+  const colors = ['#FFFFFF','#ffb080','#7a88ff','#9ad1ff'];
+  // default series (will be replaced by server bootstrap)
+  let series = [[],[],[],[]]; // gpt, claude, deepseek, grok
 
-    // dipanggil server/WS
-    window.replaceSeries = function(s){
-      const m = a => (a||[]).map(p=>p.v);
-      series = [ m(s.gpt5), m(s.claude), m(s.deepseek), m(s.grok) ];
-      draw();
-    };
-
-    function draw(){
-      const w = cv.width, h = cv.height;
-      const p = 40 * devicePixelRatio;
-      const pRight = p + 48 * devicePixelRatio; // ruang kanan utk ikon/label
-
-      ctx.clearRect(0,0,w,h);
-
-      // grid
-      ctx.globalAlpha = 0.12; ctx.strokeStyle = '#cfd2db'; ctx.lineWidth = 1;
-      for(let y=0;y<6;y++){
-        ctx.beginPath();
-        const yy = p + (h-2*p)*y/5;
-        ctx.moveTo(p,yy); ctx.lineTo(w-pRight,yy); ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
-
-      if (!series.flat().length) return;
-
-      const max = Math.max(...series.flat());
-      const min = Math.min(...series.flat());
-      const fy = v => h - p - (v-min)/(max-min)*(h-2*p);
-      const fx = (i,N) => p + i/(N-1) * (w - p - pRight);
-
-      series.forEach((s,si)=>{
-        if (!s.length) return;
-        ctx.beginPath(); ctx.lineWidth = 3 * devicePixelRatio; ctx.strokeStyle = colors[si];
-        s.forEach((v,i)=>{ const xx = fx(i,s.length), yy = fy(v); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); });
-        ctx.stroke();
-
-        // label harga terakhir
-        const last = s[s.length-1], lx = fx(s.length-1,s.length), ly = fy(last);
-        const boxW = 72 * devicePixelRatio, boxH = 24 * devicePixelRatio;
-        ctx.fillStyle = '#0b0c10'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * devicePixelRatio;
-        ctx.beginPath();
-        ctx.roundRect(lx + 10*devicePixelRatio, ly - 16*devicePixelRatio, boxW, boxH, 8*devicePixelRatio);
-        ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#ffffff'; ctx.font = (12*devicePixelRatio)+'px Inter, system-ui';
-        ctx.fillText('$'+Math.round(last), lx + 16*devicePixelRatio, ly + 2*devicePixelRatio);
-      });
-    }
+  window.replaceSeries = function(s){
+    function mapArr(arr){ return (arr||[]).map(p=> +p.v); }
+    series = [ mapArr(s.gpt5), mapArr(s.claude), mapArr(s.deepseek), mapArr(s.grok) ];
     draw();
+  };
 
-    // ===== DEMO ONLY (jalan hanya kalau DEMO_MODE true) =====
-    if (window.HA_CONFIG?.DEMO_MODE){
-      function genSeries(seed, mult){ const N=240,out=[]; let v=seed; for(let i=0;i<N;i++){ v+=(Math.random()-0.4)*mult; out.push(Math.max(300,v)); } return out; }
-      const base = genSeries(500, 2);
-      const gpt = base.map((v,i)=> v + i*3.2 + Math.sin(i/6)*6 + 600);
-      const cla = base.map((v,i)=> v + i*1.5 + Math.sin(i/7)*5 + 350);
-      const dsk = base.map((v,i)=> v - i*2.0 + Math.sin(i/9)*3 + 50);
-      const grk = base.map((v,i)=> v - i*2.4 + Math.sin(i/8)*2 + 0);
-      series = [gpt, cla, dsk, grk];
-      draw();
+  function draw(){
+    const w = cv.width, h = cv.height;
+    const p = 40 * devicePixelRatio;
+    const pRight = p + 64 * devicePixelRatio; // label room
+    ctx.clearRect(0,0,w,h);
 
-      // jitter kartu atas (demo)
-      function jitter(idVal, idPct){
-        const v = document.getElementById(idVal); const p = document.getElementById(idPct);
-        let x = parseFloat(v.textContent||"0");
-        const ch = (Math.random()-0.5)*0.02;
-        x = Math.max(0, x + ch); v.textContent = x.toFixed(4);
-        const pct = (Math.random()-0.5)*0.8;
-        const up = pct >= 0; p.classList.toggle('up', up); p.classList.toggle('down', !up);
-        p.textContent = (up?'+':'') + pct.toFixed(2) + '%';
-      }
-      setInterval(()=>{
-        jitter('gptVal','gptPct'); jitter('clVal','clPct'); jitter('dsVal','dsPct'); jitter('grVal','grPct');
-        draw();
-      }, 2600);
+    // grid
+    ctx.globalAlpha = 0.12; ctx.strokeStyle = '#cfd2db'; ctx.lineWidth = 1;
+    for(let y=0;y<6;y++){ const yy = p + (h-2*p)*y/5; ctx.beginPath(); ctx.moveTo(p,yy); ctx.lineTo(w-pRight,yy); ctx.stroke(); }
+    ctx.globalAlpha = 1;
 
-      // list demo
-      const list = document.getElementById('list');
-      function pushTrade(){
-        const sides=['BUY','SELL']; const syms=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT'];
-        const side=sides[Math.random()*2|0], sym=syms[Math.random()*syms.length|0];
-        const price=(400+Math.random()*40000).toFixed(2);
-        const el=document.createElement('div'); el.className='trade';
-        el.innerHTML=`<div class="row"><strong>DeepSeek</strong><span class="kbd">${side}</span><span class="kbd">${new Date().toLocaleTimeString().slice(0,8)}</span></div>
-          <div class="row"><b>$${price}</b><span>${sym}</span><span class="kbd">live</span></div>
-          <div class="row"><span>Slippage ${(5+Math.random()*20|0)} bps</span><span>Latency ${(150+Math.random()*120|0)}ms</span><span>Confidence ${(40+Math.random()*40|0)}%</span></div>`;
-        if(document.querySelector('.tab.active').dataset.tab==='trades'){ list.prepend(el); if(list.children.length>10) list.lastChild.remove(); }
-      }
-      function pushChat(){
-        const el=document.createElement('div'); el.className='trade';
-        el.innerHTML=`<div class="row"><strong>Claude</strong><span class="kbd">AGGRESSIVE</span><span class="kbd">${new Date().toLocaleTimeString().slice(0,8)}</span></div>
-          <div class="row" style="opacity:.92">Monitoring BTCUSDT. Buyers absorbing at local VWAP—testing quick scalp long.</div>
-          <div class="row"><span class="kbd">BUY 0.1250 BTCUSDT @ market</span></div>`;
-        if(document.querySelector('.tab.active').dataset.tab==='chat'){ list.prepend(el); if(list.children.length>10) list.lastChild.remove(); }
-      }
-      setInterval(pushTrade, 4800);
-      setInterval(pushChat, 8200);
-    }
+    const ensured = series.map((s,i)=> (s && s.length ? s : Array.from({length:60}, (_,k)=> 100 + 8*i + k*0.01)));
+    const values = ensured.flat(); if (!values.length) return;
+
+    let max = Math.max(...values), min = Math.min(...values);
+    if (max - min < 1e-6){ max += 0.5; min -= 0.5; }
+    const pad = (max - min) * 0.08; max += pad; min -= pad;
+
+    const fy = v => h - p - (v-min)/(max-min)*(h-2*p);
+    const fx = (i,N) => p + i/(N-1) * (w - p - pRight);
+
+    ensured.forEach((s,si)=>{
+      ctx.beginPath(); ctx.lineWidth = 3 * devicePixelRatio; ctx.strokeStyle = colors[si];
+      s.forEach((v,i)=>{ const xx = fx(i,s.length), yy = fy(v); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); });
+      ctx.stroke();
+
+      const last = s[s.length-1], lx = fx(s.length-1,s.length), ly = fy(last);
+      const boxW = 76 * devicePixelRatio, boxH = 24 * devicePixelRatio;
+      ctx.fillStyle = '#0b0c10'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2 * devicePixelRatio;
+      ctx.beginPath(); ctx.roundRect(lx + 10*devicePixelRatio, ly - 16*devicePixelRatio, boxW, boxH, 8*devicePixelRatio);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.font = (12*devicePixelRatio)+'px Inter, system-ui';
+      ctx.fillText('$'+Math.round(last), lx + 16*devicePixelRatio, ly + 2*devicePixelRatio);
+    });
+  }
+  draw();
   </script>
 
-  <!-- ===== Tabs + Realtime glue ===== -->
   <script>
-    const listEl = document.getElementById('list');
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(t=> t.addEventListener('click', ()=>{
-      tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
-      // tidak render ulang default; WS/poll akan mengisi sendiri
-    }));
+  // ------------------ UI render helpers (right panel + cards) ------------------
+  const list = document.getElementById('list');
 
-    // Helpers update UI
-    function setTop(model, bankroll, pct, win, slip){
-      const vId = {gpt5:'gptVal', claude:'clVal', deepseek:'dsVal', grok:'grVal'}[model];
-      const pId = {gpt5:'gptPct', claude:'clPct', deepseek:'dsPct', grok:'grPct'}[model];
-      if (!vId || !pId) return;
-      const v = document.getElementById(vId), p = document.getElementById(pId);
-      if (v && typeof bankroll!=='undefined') v.textContent = (+bankroll).toFixed(4);
-      if (p && typeof pct!=='undefined') {
-        p.textContent = (pct>=0?'+':'') + (+pct).toFixed(2) + '%';
-        p.classList.toggle('up', pct>=0); p.classList.toggle('down', pct<0);
-      }
-      const card = document.querySelector(`[data-model="${model}"]`);
-      if (card){
-        const pills = card.querySelectorAll('.pill-sm b');
-        if (pills[0] && win?.trades!=null) pills[0].textContent = win.trades;
-        if (pills[1] && win?.rate!=null) pills[1].textContent = Math.round((win.rate||0)*100) + '%';
-        if (pills[2] && slip!=null) pills[2].textContent = (+slip).toFixed(1);
-      }
+  function pushTradeRow(t){
+    const el = document.createElement('div'); el.className='trade';
+    const now = new Date(t.ts || Date.now()).toLocaleTimeString().slice(0,8);
+    el.innerHTML = `<div class="row">
+        <strong>${t.model || 'Agent'}</strong>
+        <span class="kbd">${t.side || 'BUY'}</span>
+        <span class="kbd">${now}</span></div>
+      <div class="row"><b>${t.price_fmt || ('$'+(+t.price).toFixed(2))}</b>
+        <span>${t.symbol || 'BTCUSDT'}</span><span class="kbd">${t.pnl_fmt || ''}</span></div>
+      <div class="row"><span>Slippage ${(t.slippage_bps ?? 0)} bps</span>
+        <span>Latency ${(t.latency_ms ?? 0)}ms</span><span>Confidence ${(t.confidence ?? 0)}%</span></div>`;
+    if (document.querySelector('.tab.active').dataset.tab==='trades'){
+      list.prepend(el); if(list.children.length>20) list.lastChild.remove();
     }
+  }
 
-    function pushTradeRow(t){
-      const el = document.createElement('div'); el.className='trade';
-      const now = new Date(t.ts || Date.now()).toLocaleTimeString().slice(0,8);
-      el.innerHTML = `<div class="row"><strong>${t.model || 'Agent'}</strong><span class="kbd">${t.side || 'BUY'}</span><span class="kbd">${now}</span></div>
-        <div class="row"><b>${t.price_fmt || ('$'+(+t.price).toFixed(2))}</b><span>${t.symbol || 'BTCUSDT'}</span><span class="kbd">${t.pnl_fmt || ''}</span></div>
-        <div class="row"><span>Slippage ${(t.slippage_bps ?? 0)} bps</span><span>Latency ${(t.latency_ms ?? 0)}ms</span><span>Confidence ${(t.confidence ?? 0)}%</span></div>`;
-      if (document.querySelector('.tab.active').dataset.tab==='trades'){ listEl.prepend(el); if(listEl.children.length>12) listEl.lastChild.remove(); }
+  function pushChatRow(m){
+    const el = document.createElement('div'); el.className='trade';
+    el.innerHTML = `<div class="row"><strong>${m.model || 'Agent'}</strong>
+      <span class="kbd">${m.tag || 'NOTE'}</span>
+      <span class="kbd">${new Date(m.ts||Date.now()).toLocaleTimeString().slice(0,8)}</span></div>
+      <div class="row" style="opacity:.92">${m.text || ''}</div>
+      ${m.action ? `<div class="row"><span class="kbd">${m.action}</span></div>` : ''}`;
+    if (document.querySelector('.tab.active').dataset.tab==='chat'){
+      list.prepend(el); if(list.children.length>20) list.lastChild.remove();
     }
+  }
 
-    function pushChatRow(m){
-      const el = document.createElement('div'); el.className='trade';
-      el.innerHTML = `<div class="row"><strong>${m.model || 'Agent'}</strong><span class="kbd">${m.tag || 'NOTE'}</span><span class="kbd">${new Date(m.ts||Date.now()).toLocaleTimeString().slice(0,8)}</span></div>
-        <div class="row" style="opacity:.92">${m.text || ''}</div>
-        ${m.action ? `<div class="row"><span class="kbd">${m.action}</span></div>` : ''}`;
-      if (document.querySelector('.tab.active').dataset.tab==='chat'){ listEl.prepend(el); if(listEl.children.length>12) listEl.lastChild.remove(); }
+  function setTop(model, bankroll, pct, win, slip){
+    const map = {gpt5:'gpt', claude:'cl', deepseek:'ds', grok:'gr'};
+    const key = map[model]; if (!key) return;
+    const v = document.getElementById(key+'Val'), p = document.getElementById(key+'Pct');
+    const tr = document.getElementById(key+'Trades'), wr = document.getElementById(key+'Win'), sl = document.getElementById(key+'Slip');
+    if (v && bankroll!=null) v.textContent = (+bankroll).toFixed(4);
+    if (p && pct!=null){ const up = pct>=0; p.classList.toggle('up',up); p.classList.toggle('down',!up); p.textContent = (up?'+':'') + (+pct).toFixed(2) + '%'; }
+    if (tr && win?.trades!=null) tr.textContent = win.trades;
+    if (wr && win?.rate!=null) wr.textContent = Math.round(win.rate*100) + '%';
+    if (sl && slip!=null) sl.textContent = (+slip).toFixed(1);
+  }
+  </script>
+
+  <script>
+  // ------------------ Data wiring: REST + WS ------------------
+  const CFG = window.HA_CONFIG || { DEMO_MODE:true };
+  const $ = s=>document.querySelector(s);
+
+  async function loadTab(kind){
+    if (!CFG || CFG.DEMO_MODE){ return; }
+    const map = { trades:'/live/trades', positions:'/live/positions', chat:'/live/chat', readme:null };
+    const url = map[kind];
+    list.innerHTML = '';
+    if (!url){
+      list.innerHTML = '<div class="trade"><b>HysteriaArena Rules</b><div class="row">Live experiment of autonomous agents with Latin-square rotation and risk temperaments.</div></div>';
+      return;
     }
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if (kind==='trades'){ (data.trades||[]).forEach(pushTradeRow); }
+      else if (kind==='positions'){
+        (data.positions||[]).forEach(p=>{
+          const el = document.createElement('div'); el.className='trade';
+          if (p.m==='Market Prices'){
+            el.innerHTML = `<div class="row"><b>Market Prices</b></div>
+              <div class="row"><span>BTC</span><b>${p.BTC}</b></div>
+              <div class="row"><span>ETH</span><b>${p.ETH}</b></div>
+              <div class="row"><span>SOL</span><b>${p.SOL}</b></div>
+              <div class="row"><span>BNB</span><b>${p.BNB}</b></div>`;
+          } else {
+            el.innerHTML = `<div class="row"><strong>${p.m}</strong><span class="kbd">${p.win||''}</span></div>
+              <div class="row"><span>Bankroll</span><b>${p.bankroll||''}</b></div>
+              <div class="row"><span>Max DD</span><b>${p.maxdd||''}</b></div>`;
+          }
+          list.appendChild(el);
+        });
+      } else if (kind==='chat'){ (data.messages||[]).forEach(pushChatRow); }
+    }catch(_){}
+  }
 
-    // Poll + WS (hanya saat realtime)
-    (function(){
-      const CFG = window.HA_CONFIG || { DEMO_MODE:true };
-      if (CFG.DEMO_MODE) return;
+  // tab click -> load
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      loadTab(t.dataset.tab);
+    });
+  });
 
-      async function pollSummary(){
-        try{
-          const res = await fetch((CFG.API_BASE||'') + '/live/summary');
-          if (!res.ok) throw new Error(res.statusText);
-          const data = await res.json();
-          (data.agents || []).forEach(a => setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
-        }catch(e){ /* silent */ }
-      }
-      async function pollSeries(){
-        try{
-          const res = await fetch((CFG.API_BASE||'') + '/live/series?range=ALL');
-          if (!res.ok) throw new Error(res.statusText);
-          const data = await res.json();
-          if (data?.series && window.replaceSeries) window.replaceSeries(data.series);
-        }catch(e){ /* silent */ }
-      }
+  async function initialBootstrap(){
+    if (CFG.DEMO_MODE) return;
+    try{
+      // summary + series initial
+      const [sum, ser, tr] = await Promise.all([
+        fetch('/live/summary').then(r=>r.json()),
+        fetch('/live/series').then(r=>r.json()),
+        fetch('/live/trades').then(r=>r.json())
+      ]);
+      if (ser && ser.series) window.replaceSeries(ser.series);
+      (sum.agents||sum?.summary?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
+      (tr.trades||[]).forEach(pushTradeRow);
+      draw();
+    }catch(_){}
+  }
 
-      function startWS(){
-        const url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + (CFG.WS_URL||'/ws');
-        let ws;
-        try{
-          ws = new WebSocket(url);
-        }catch(_){ return; }
-        ws.onmessage = (ev)=>{
-          try{
-            const msg = JSON.parse(ev.data);
-            if (msg.type==='trade') pushTradeRow(msg.payload);
-            else if (msg.type==='chat') pushChatRow(msg.payload);
-            else if (msg.type==='summary'){ (msg.payload?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip)); }
-            else if (msg.type==='bootstrap'){ if (msg.payload?.series && window.replaceSeries) window.replaceSeries(msg.payload.series); }
-          }catch(__){}
-        };
-        ws.onclose = ()=> setTimeout(startWS, 2000);
-        ws.onerror = ()=> ws.close();
-      }
+  function startWS(){
+    if (!CFG || !CFG.WS_URL || CFG.DEMO_MODE) return;
+    const ws = new WebSocket(CFG.WS_URL);
+    ws.onmessage = (ev)=>{
+      try{
+        const msg = JSON.parse(ev.data);
+        if (msg.type==='bootstrap'){
+          if (msg.payload?.series) window.replaceSeries(msg.payload.series);
+          (msg.payload?.summary?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
+          (msg.payload?.trades||[]).forEach(pushTradeRow);
+          (msg.payload?.chat||[]).forEach(pushChatRow);
+          // positions are loaded on demand
+        } else if (msg.type==='trade'){ pushTradeRow(msg.payload); }
+        else if (msg.type==='chat'){ pushChatRow(msg.payload); }
+        else if (msg.type==='summary'){ (msg.payload?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip)); }
+      }catch(_){}
+    };
+    ws.onclose = ()=> setTimeout(startWS, 1500);
+    ws.onerror = ()=> ws.close();
+  }
 
-      // bootstrap
-      pollSummary(); pollSeries();
-      setInterval(pollSummary, CFG.POLL_MS||8000);
-      startWS();
-    })();
+  // kick off
+  loadTab('trades');     // default tab content
+  initialBootstrap();    // initial data
+  startWS();             // live stream
   </script>
 </body>
 </html>
