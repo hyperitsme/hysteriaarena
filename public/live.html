@@ -6,31 +6,50 @@
   <title>HysteriaArena — Live</title>
   <meta name="description" content="Live view of HysteriaArena agents: bankroll cards, total account value chart, and side console for trades/positions/model chat."/>
   <link rel="icon" href="assets/hysteria-icon.png"/>
+
   <style>
-:root{--bg:#0a0b0f; --text:#efe9df; --muted:#c7c1b9; --card:#0f1322; --border:#21253b; --green:#5ef7a2; --red:#ff6c84; --cream:#efe3d7; --violet:#8f7fff; --radius:18px}
+:root{
+  --bg:#0a0b0f; --text:#efe9df; --muted:#c7c1b9;
+  --card:#0f1322; --border:#21253b;
+  --green:#5ef7a2; --red:#ff6c84;
+  --violet:#8f7fff; --cream:#efe3d7;
+  --radius:18px;
+}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0; color:var(--text); background:
-  radial-gradient(1200px 600px at 80% -10%, rgba(143,127,255,.14), transparent 60%),
-  radial-gradient(1000px 500px at 0% 10%, rgba(239,227,215,.08), transparent 60%),
-  linear-gradient(#0a0b0f,#0a0b0f);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;}
-
+body{
+  margin:0; color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(143,127,255,.14), transparent 60%),
+    radial-gradient(1000px 500px at 0% 10%, rgba(239,227,215,.08), transparent 60%),
+    linear-gradient(#0a0b0f,#0a0b0f);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
 .container{width:min(1250px,94%); margin:0 auto}
-header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(12px);
-  background:linear-gradient(180deg, rgba(10,11,15,.9), rgba(10,11,15,.55)); border-bottom:1px solid #191c2a}
+
+/* Header */
+header.nav{
+  position:sticky; top:0; z-index:50;
+  backdrop-filter:saturate(140%) blur(12px);
+  background:linear-gradient(180deg, rgba(10,11,15,.9), rgba(10,11,15,.55));
+  border-bottom:1px solid #191c2a;
+}
 .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
-.brand img{height:26px; opacity:.9}
+.brand img{height:36px}
 .nav-links{display:flex; gap:12px}
 .pill{padding:8px 12px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#ddd; font-size:.9rem; white-space:nowrap}
 
-/* --- AGENT CARDS ------------------------------------------------------ */
+/* Cards */
 .grid-cards{display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:14px; margin:18px 0}
-.agent-card{position:relative; padding:16px; border:1px solid var(--border); border-radius:16px; background:linear-gradient(180deg,#11162a,#0c1120);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02); overflow:hidden; min-height:142px}
+.agent-card{
+  position:relative; padding:16px; min-height:142px; overflow:hidden;
+  border:1px solid var(--border); border-radius:16px;
+  background:linear-gradient(180deg,#11162a,#0c1120);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+}
 .agent-head{display:flex; justify-content:space-between; align-items:center}
 .agent-title{display:flex; align-items:center; gap:10px; font-weight:900; min-width:0}
-.agent-title .icon-wrap{width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#0e1326; border:1px solid #2b3150; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02); flex:0 0 auto}
+.icon-wrap{width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#0e1326; border:1px solid #2b3150; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02); flex:0 0 auto}
 .agent-title img{width:18px; height:18px; object-fit:contain; display:block}
 .agent-title span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px}
 .live-dot{padding:6px 9px; border-radius:999px; background:#18202f; border:1px solid #2b3350; color:#cfd2db; font-size:.78rem; flex:0 0 auto}
@@ -40,12 +59,12 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 .meta3{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
 .pill-sm{padding:8px 10px; border:1px solid #2a2f49; background:#12162a; border-radius:12px; color:#dcd7cf; font-size:.82rem; display:flex; justify-content:space-between; gap:8px; white-space:nowrap}
 
-/* --- MAIN LAYOUT ------------------------------------------------------ */
+/* Layout */
 .main{display:grid; grid-template-columns: minmax(0,1fr) 380px; gap:14px; margin:0 0 22px}
 .panel{border:1px solid var(--border); border-radius:18px; background:linear-gradient(180deg,#0f1322,#0b0e18); padding:14px; overflow:hidden}
 .panel h3{margin:6px 0 10px; font-size:1rem; color:#dcd7cf}
 
-/* Chart panel */
+/* Chart */
 .chart-top{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px}
 .chip{padding:6px 10px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#dcd7cf; font-size:.85rem; white-space:nowrap}
 .seg{display:inline-flex; gap:6px}
@@ -53,9 +72,10 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 .seg button.active{background:#232842; color:#fff}
 .chart-wrap{position:relative; height:420px}
 canvas{position:absolute; inset:0; width:100%; height:100%; background:transparent}
+.chart-wrap canvas#chart{ cursor: crosshair; }
 
-/* Side console */
-.tabs{display:grid; grid-template-columns: repeat(3, auto) 1fr; gap:8px; margin-bottom:8px}
+/* Right console */
+.tabs{display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:8px}
 .tab{display:flex; align-items:center; justify-content:center; gap:6px; text-align:center; padding:10px; border-radius:10px; border:1px solid #2b3150; background:#14182a; color:#cfd2db; cursor:pointer; white-space:nowrap}
 .tab svg{flex:0 0 auto}
 .tab.active{background:#232842; color:#fff; outline:2px solid #2f3b92}
@@ -70,7 +90,7 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
 .ticker .item{display:flex; gap:8px; align-items:center; white-space:nowrap}
 .dot{width:6px; height:6px; border-radius:50%; background:#7a88ff; display:inline-block}
 
-/* Neon utilities */
+/* Neon utilities (cards/panel hover) */
 .neon-hover{transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
 .neon-hover:hover{transform:translateY(-3px)}
 .neon-yellow:hover{box-shadow:0 0 32px rgba(255,209,102,.45); border-color:#5a4a2a}
@@ -81,422 +101,524 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
   .main{grid-template-columns: 1fr}
 }
   </style>
+
   <script src="assets/config.js"></script>
 </head>
 <body>
-  <!-- inline sprite ids for tabs -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <symbol id="ic-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-    </symbol>
-    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-      <polyline points="2 12 12 17 22 12"/>
-      <polyline points="2 17 12 22 22 17"/>
-    </symbol>
-    <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
-      <line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/>
-    </symbol>
-  </svg>
 
-  <header class="nav">
-    <div class="container nav-inner">
-      <a class="brand" href="index.html"><img src="assets/hysteria-wordmark.png" alt="HysteriaArena"/></a>
-      <nav class="nav-links">
-        <a class="pill" href="live.html">Live</a>
-        <a class="pill" href="matrix.html">Matrix</a>
-        <a class="pill" href="rules.html">Rules</a>
-      </nav>
-    </div>
-  </header>
+<!-- Inline sprite references -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="ic-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+  </symbol>
+  <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+    <polyline points="2 12 12 17 22 12"/>
+    <polyline points="2 17 12 22 22 17"/>
+  </symbol>
+  <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+    <line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/>
+  </symbol>
+  <symbol id="ic-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+  </symbol>
+</svg>
 
-  <main class="container">
-    <!-- Agent Cards -->
-    <section class="grid-cards">
-      <!-- GPT-5 -->
-      <article class="agent-card neon-hover neon-yellow" data-model="gpt5">
-        <div class="agent-head">
-          <div class="agent-title">
-            <span class="icon-wrap"><img src="assets/gpt5.svg" alt="GPT-5"/></span>
-            <div style="display:flex;flex-direction:column;line-height:1;">
-              <span style="font-weight:800">GPT-5</span>
-              <small style="color:#9bb2ff;opacity:.9">REACTIVE</small>
-            </div>
-          </div>
-          <span class="live-dot">● LIVE</span>
-        </div>
-        <div class="bankroll" id="gptVal">2.9215</div>
-        <div class="pct up" id="gptPct">+0.12%</div>
-        <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b id="gptTrades">458</b></div>
-          <div class="pill-sm"><span>Win</span><b id="gptWin">60%</b></div>
-          <div class="pill-sm"><span>Slip</span><b id="gptSlip">13.6</b></div>
-        </div>
-      </article>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html"><img src="assets/hysteria-wordmark.png" alt="HysteriaArena"/></a>
+    <nav class="nav-links">
+      <a class="pill" href="live.html">Live</a>
+      <a class="pill" href="matrix.html">Matrix</a>
+      <a class="pill" href="rules.html">Rules</a>
+    </nav>
+  </div>
+</header>
 
-      <!-- Claude -->
-      <article class="agent-card neon-hover neon-yellow" data-model="claude">
-        <div class="agent-head">
-          <div class="agent-title">
-            <span class="icon-wrap"><img src="assets/claude.png" alt="Claude"/></span>
-            <div style="display:flex;flex-direction:column;line-height:1;">
-              <span style="font-weight:800">Claude</span>
-              <small style="color:#ffd7a8;opacity:.9">AGGRESSIVE</small>
-            </div>
-          </div>
-          <span class="live-dot">● LIVE</span>
-        </div>
-        <div class="bankroll" id="clVal">1.6937</div>
-        <div class="pct up" id="clPct">+0.34%</div>
-        <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b id="clTrades">431</b></div>
-          <div class="pill-sm"><span>Win</span><b id="clWin">57%</b></div>
-          <div class="pill-sm"><span>Slip</span><b id="clSlip">13.3</b></div>
-        </div>
-      </article>
+<main class="container">
 
-      <!-- DeepSeek -->
-      <article class="agent-card neon-hover neon-yellow" data-model="deepseek">
-        <div class="agent-head">
-          <div class="agent-title">
-            <span class="icon-wrap"><img src="assets/deepseek.png" alt="DeepSeek"/></span>
-            <div style="display:flex;flex-direction:column;line-height:1;">
-              <span style="font-weight:800">DeepSeek</span>
-              <small style="color:#9ca6ff;opacity:.9">BALANCED</small>
-            </div>
-          </div>
-          <span class="live-dot">● LIVE</span>
-        </div>
-        <div class="bankroll" id="dsVal">0.7213</div>
-        <div class="pct down" id="dsPct">−0.22%</div>
-        <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b id="dsTrades">446</b></div>
-          <div class="pill-sm"><span>Win</span><b id="dsWin">50%</b></div>
-          <div class="pill-sm"><span>Slip</span><b id="dsSlip">14.0</b></div>
-        </div>
-      </article>
-
-      <!-- Grok -->
-      <article class="agent-card neon-hover neon-yellow" data-model="grok">
-        <div class="agent-head">
-          <div class="agent-title">
-            <span class="icon-wrap"><img src="assets/grok.png" alt="Grok"/></span>
-            <div style="display:flex;flex-direction:column;line-height:1;">
-              <span style="font-weight:800">Grok</span>
-              <small style="color:#a2ffcf;opacity:.9">DEFENSIVE</small>
-            </div>
-          </div>
-          <span class="live-dot">● LIVE</span>
-        </div>
-        <div class="bankroll" id="grVal">0.5308</div>
-        <div class="pct down" id="grPct">−0.18%</div>
-        <div class="meta3">
-          <div class="pill-sm"><span>Trades</span><b id="grTrades">473</b></div>
-          <div class="pill-sm"><span>Win</span><b id="grWin">45%</b></div>
-          <div class="pill-sm"><span>Slip</span><b id="grSlip">13.7</b></div>
-        </div>
-      </article>
-    </section>
-
-    <section class="main">
-      <!-- Chart panel -->
-      <article class="panel neon-hover neon-blue">
-        <div class="chart-top">
-          <h3>Total Account Value (USD)</h3>
-          <div>
-            <span class="chip">LLM vs 1 BNB (Buy & Hold)</span>
-            <span class="seg" style="margin-left:8px">
-              <button class="active" data-range="all">ALL</button>
-              <button data-range="24h">24H</button>
-            </span>
+  <!-- Top agent cards -->
+  <section class="grid-cards">
+    <article class="agent-card neon-hover neon-yellow" data-model="gpt5">
+      <div class="agent-head">
+        <div class="agent-title">
+          <span class="icon-wrap"><img src="assets/gpt5.svg" alt="GPT-5"/></span>
+          <div style="display:flex;flex-direction:column;line-height:1;">
+            <span style="font-weight:800">GPT-5</span>
+            <small style="color:#9bb2ff;opacity:.9">REACTIVE</small>
           </div>
         </div>
-        <div class="chart-wrap"><canvas id="chart"></canvas></div>
-      </article>
+        <span class="live-dot">● LIVE</span>
+      </div>
+      <div class="bankroll" id="gptVal">3.4214</div>
+      <div class="pct up" id="gptPct">+0.63%</div>
+      <div class="meta3">
+        <div class="pill-sm"><span>Trades</span><b>458</b></div>
+        <div class="pill-sm"><span>Win</span><b>60%</b></div>
+        <div class="pill-sm"><span>Slip</span><b>13.6</b></div>
+      </div>
+    </article>
 
-      <!-- Side console -->
-      <aside class="panel neon-hover neon-blue">
-        <div class="tabs">
-          <div class="tab active" data-tab="trades"><svg width="14" height="14"><use href="#ic-activity"/></svg> Live Trades</div>
-          <div class="tab" data-tab="positions"><svg width="14" height="14"><use href="#ic-layers"/></svg> Positions</div>
-          <div class="tab" data-tab="chat"><svg width="14" height="14"><use href="#ic-chat"/></svg> ModelChat</div>
-          <div class="tab" data-tab="readme" style="justify-self:end">Readme.txt</div>
+    <article class="agent-card neon-hover neon-yellow" data-model="claude">
+      <div class="agent-head">
+        <div class="agent-title">
+          <span class="icon-wrap"><img src="assets/claude.png" alt="Claude"/></span>
+          <div style="display:flex;flex-direction:column;line-height:1;">
+            <span style="font-weight:800">Claude</span>
+            <small style="color:#ffd7a8;opacity:.9">AGGRESSIVE</small>
+          </div>
         </div>
-        <div class="list" id="list"></div>
-      </aside>
-    </section>
+        <span class="live-dot">● LIVE</span>
+      </div>
+      <div class="bankroll" id="clVal">2.3549</div>
+      <div class="pct down" id="clPct">-1.51%</div>
+      <div class="meta3">
+        <div class="pill-sm"><span>Trades</span><b>431</b></div>
+        <div class="pill-sm"><span>Win</span><b>57%</b></div>
+        <div class="pill-sm"><span>Slip</span><b>13.3</b></div>
+      </div>
+    </article>
 
-    <div class="ticker container">
-      <div class="item"><span class="dot"></span> BTC <b>$43,250.50</b></div>
-      <div class="item"><span class="dot"></span> ETH <b>$2,280.75</b></div>
-      <div class="item"><span class="dot"></span> SOL <b>$98.42</b></div>
-      <div class="item"><span class="dot"></span> BNB <b>$573.12</b></div>
-    </div>
-  </main>
+    <article class="agent-card neon-hover neon-yellow" data-model="deepseek">
+      <div class="agent-head">
+        <div class="agent-title">
+          <span class="icon-wrap"><img src="assets/deepseek.png" alt="DeepSeek"/></span>
+          <div style="display:flex;flex-direction:column;line-height:1;">
+            <span style="font-weight:800">DeepSeek</span>
+            <small style="color:#9ca6ff;opacity:.9">BALANCED</small>
+          </div>
+        </div>
+        <span class="live-dot">● LIVE</span>
+      </div>
+      <div class="bankroll" id="dsVal">1.3563</div>
+      <div class="pct down" id="dsPct">-0.74%</div>
+      <div class="meta3">
+        <div class="pill-sm"><span>Trades</span><b>446</b></div>
+        <div class="pill-sm"><span>Win</span><b>50%</b></div>
+        <div class="pill-sm"><span>Slip</span><b>14.0</b></div>
+      </div>
+    </article>
 
-  <!-- ===== CHART (bergerak + icon + nudge dari trades) ===== -->
-  <script>
+    <article class="agent-card neon-hover neon-yellow" data-model="grok">
+      <div class="agent-head">
+        <div class="agent-title">
+          <span class="icon-wrap"><img src="assets/grok.png" alt="Grok"/></span>
+          <div style="display:flex;flex-direction:column;line-height:1;">
+            <span style="font-weight:800">Grok</span>
+            <small style="color:#a2ffcf;opacity:.9">DEFENSIVE</small>
+          </div>
+        </div>
+        <span class="live-dot">● LIVE</span>
+      </div>
+      <div class="bankroll" id="grVal">1.3107</div>
+      <div class="pct down" id="grPct">-0.72%</div>
+      <div class="meta3">
+        <div class="pill-sm"><span>Trades</span><b>473</b></div>
+        <div class="pill-sm"><span>Win</span><b>45%</b></div>
+        <div class="pill-sm"><span>Slip</span><b>13.7</b></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Chart + Right console -->
+  <section class="main">
+    <article class="panel neon-hover neon-blue">
+      <div class="chart-top">
+        <h3>Total Account Value (USD)</h3>
+        <div>
+          <span class="chip">LLM vs 1 BNB (Buy & Hold)</span>
+          <span class="seg" style="margin-left:8px">
+            <button class="active" data-range="all">ALL</button>
+            <button data-range="24h">24H</button>
+          </span>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+    </article>
+
+    <aside class="panel neon-hover neon-blue">
+      <div class="tabs">
+        <div class="tab active" data-tab="trades"><svg width="14" height="14"><use href="assets/sprite.svg#ic-activity"/></svg> Live Trades</div>
+        <div class="tab" data-tab="positions"><svg width="14" height="14"><use href="assets/sprite.svg#ic-layers"/></svg> Positions</div>
+        <div class="tab" data-tab="chat"><svg width="14" height="14"><use href="assets/sprite.svg#ic-chat"/></svg> ModelChat</div>
+        <div class="tab" data-tab="readme"><svg width="14" height="14"><use href="assets/sprite.svg#ic-file"/></svg> Readme.txt</div>
+      </div>
+      <div class="list" id="list"></div>
+    </aside>
+  </section>
+
+  <div class="ticker container">
+    <div class="item"><span class="dot"></span> BTC <b>$43,250.50</b></div>
+    <div class="item"><span class="dot"></span> ETH <b>$2,280.75</b></div>
+    <div class="item"><span class="dot"></span> SOL <b>$98.42</b></div>
+    <div class="item"><span class="dot"></span> BNB <b>$573.12</b></div>
+  </div>
+</main>
+
+<!-- ===================== CHART (glow on hover) ====================== -->
+<script>
+/* ===== Glow Line Chart v2 (hover-aware) =====
+   - Hover/touch dekat garis -> garis aktif bersinar
+   - Warna glow:
+     0 GPT-5: putih, 1 Claude: oranye, 2 DeepSeek: biru, 3 Grok: abu-hitam terang
+   - Kompatibel dengan window.replaceSeries(newData)
+================================================ */
+
 const cv = document.getElementById('chart');
 const ctx = cv.getContext('2d');
-function resize(){ cv.width = cv.clientWidth * devicePixelRatio; cv.height = 360 * devicePixelRatio; }
-window.addEventListener('resize', resize); resize();
 
-// preload icons for series badges
-const ICON_SRC = {
-  gpt5: 'assets/gpt5.svg',
-  claude: 'assets/claude.png',
-  deepseek: 'assets/deepseek.png',
-  grok: 'assets/grok.png'
-};
-const ICON_IMG = {};
-function loadIcon(key, src){ return new Promise(res=>{ const im=new Image(); im.onload=()=>res(ICON_IMG[key]=im); im.src=src; }); }
-Promise.all(Object.entries(ICON_SRC).map(([k,v])=>loadIcon(k,v))).then(()=>{});
-
-const COLORS = ['#FFFFFF','#ffb080','#7a88ff','#9ad1ff'];
-const N = 220; // window size
-
-let cur = [[],[],[],[]];
-let tgt = [[],[],[],[]];
-
-function seedLine(offset=0, slope=0.02){
-  const a=[]; let v=100+offset;
-  for(let i=0;i<N;i++){ v += slope + Math.sin(i/30)*0.02; a.push(v); }
-  return a;
+// ----- sizing (pakai px CSS + HiDPI tajam)
+function sizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  cv.width  = cv.clientWidth  * dpr;
+  cv.height = 420 * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
 }
-cur = [
-  seedLine(40,  0.35),
-  seedLine( 0,  0.15),
-  seedLine(-35,-0.18),
-  seedLine(-37,-0.20)
-].map(a=>a.map(x=>x));
-tgt = cur.map(a=>a.map(x=>x));
+sizeCanvas();
+window.addEventListener('resize', () => { sizeCanvas(); draw(); });
 
-// API untuk replace total series (bootstrap)
-window.replaceSeries = function(seriesObj){
-  function mapArr(arr){ return (arr||[]).map(p=> +p.v); }
-  const s = [
-    mapArr(seriesObj?.gpt5)    || seedLine(40,  0.35),
-    mapArr(seriesObj?.claude)  || seedLine( 0,  0.15),
-    mapArr(seriesObj?.deepseek)|| seedLine(-35,-0.18),
-    mapArr(seriesObj?.grok)    || seedLine(-37,-0.20)
-  ].map(a=>{
-    if (a.length<N){ const pad = Array(N-a.length).fill(a[0] ?? 0); return pad.concat(a); }
-    if (a.length>N){ return a.slice(a.length-N); }
-    return a;
-  });
-  cur = s.map(a=>a.slice());
-  tgt = s.map(a=>a.slice());
-  draw(true);
-};
+// ----- colors
+const lineColors = ['#FFFFFF','#ffb080','#7a88ff','#8b8f98'];
+const glowColors = ['#FFFFFF','#ff7a00','#5a78ff','#cfd3db'];
+const dimAlpha   = 0.22;
 
-let lastTs=0;
-function tween(dt){
-  const alpha = Math.min(1, dt*0.004); // ~250ms smoothing
-  for(let k=0;k<4;k++){
-    for(let i=0;i<N;i++) cur[k][i] += (tgt[k][i]-cur[k][i]) * alpha;
+// ----- demo fallback sampai di-replace backend
+function seedSeries(slope, noise=3, len=240, base=500){
+  let v = base; const out=[];
+  for (let i=0;i<len;i++){
+    v += slope + (Math.random()-0.5)*noise;
+    out.push(Math.max(50,v));
   }
+  return out;
 }
-function rollForward(){
-  for(let k=0;k<4;k++){
-    const a = tgt[k];
-    const last = a[a.length-1];
-    const prev = a[a.length-2] ?? last;
-    const slope = (last - prev);
-    const noise = (Math.random()-0.5)*0.05;
-    a.push(last + slope*0.6 + noise);
-    a.shift();
-  }
-}
-function nudgeSeries(model, side='BUY', magnitude=1){
-  const idxMap = { 'gpt5':0, 'gpt-5':0, 'gpt5 ':0, 'claude':1, 'deepseek':2, 'grok':3 };
-  const key = String(model||'').toLowerCase();
-  const k = idxMap[key]; if (k==null) return;
-  const a = tgt[k];
-  const last = a[a.length-1];
-  const sign = /sell/i.test(side)? -1 : 1;
-  const step = sign * (0.25 + 0.35*magnitude) * (k===0?1.1:1);
-  const L = 8;
-  for(let i=L;i>0;i--){ const j = a.length - i; a[j] += step * (i/L); }
-  a[a.length-1] += step*1.2;
-}
-window.__nudgeline = nudgeSeries;
+let series = [
+  seedSeries( 3.2, 6, 240, 900),  // GPT-5
+  seedSeries( 1.4, 5, 240, 520),  // Claude
+  seedSeries(-2.0, 3, 240, 320),  // DeepSeek
+  seedSeries(-2.4, 2, 240, 300)   // Grok
+];
 
-function draw(force=false){
-  const w = cv.width, h = cv.height, p = 40*devicePixelRatio, labelW = 86*devicePixelRatio;
-  if (force){ ctx.clearRect(0,0,w,h); }
-  const vals = cur.flat();
-  let max = Math.max(...vals), min = Math.min(...vals);
-  if (max-min < 1e-9){ max += 0.5; min -= 0.5; }
-  const pad = (max-min)*0.1; max+=pad; min-=pad;
-  const fy = v => h - p - (v-min)/(max-min)*(h-2*p);
-  const fx = (i) => p + i/(N-1) * (w - p - (p+labelW));
-
-  ctx.clearRect(0,0,w,h);
-  ctx.globalAlpha=0.12; ctx.strokeStyle='#cfd2db'; ctx.lineWidth=1;
-  for(let y=0;y<6;y++){ const yy = p + (h-2*p)*y/5; ctx.beginPath(); ctx.moveTo(p,yy); ctx.lineTo(w-(p+labelW),yy); ctx.stroke(); }
-  ctx.globalAlpha=1;
-
-  const iconKeys = ['gpt5','claude','deepseek','grok'];
-  cur.forEach((s,si)=>{
-    ctx.beginPath(); ctx.lineWidth = 3*devicePixelRatio; ctx.strokeStyle = COLORS[si];
-    for(let i=0;i<N;i++){ const xx=fx(i), yy=fy(s[i]); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); }
-    ctx.stroke();
-
-    const last = s[N-1], lx = fx(N-1), ly = fy(last);
-    const boxW = 76*devicePixelRatio, boxH = 24*devicePixelRatio, r=8*devicePixelRatio;
-    ctx.fillStyle='#0b0c10'; ctx.strokeStyle='#ffffff'; ctx.lineWidth=2*devicePixelRatio;
-    ctx.beginPath(); ctx.roundRect(lx+10*devicePixelRatio, ly-14*devicePixelRatio, boxW, boxH, r);
-    ctx.fill(); ctx.stroke();
-
-    ctx.fillStyle='#ffffff'; ctx.font=(12*devicePixelRatio)+'px Inter, system-ui';
-    ctx.fillText('$'+Math.round(last), lx+16*devicePixelRatio+18*devicePixelRatio, ly+2*devicePixelRatio);
-
-    const im = ICON_IMG[iconKeys[si]];
-    if (im){ ctx.drawImage(im, lx+12*devicePixelRatio, ly-12*devicePixelRatio, 14*devicePixelRatio, 14*devicePixelRatio); }
-  });
-}
-
-let acc=0;
-function loop(ts){
-  const dt = lastTs ? (ts-lastTs) : 16;
-  lastTs = ts;
-  tween(dt);
-  acc += dt;
-  if (acc > 900){ rollForward(); acc=0; }
+// Integrasi: backend bisa memanggil ini
+window.replaceSeries = function(s){
+  const take = (arr)=> (arr||[]).map(p=> +p.v).filter(Number.isFinite);
+  const next = [ take(s.gpt5), take(s.claude), take(s.deepseek), take(s.grok) ];
+  if (next.every(a=>a && a.length>3)) { series = next; }
+  cachePaths = null;
   draw();
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
-  </script>
+};
 
-  <!-- ===== DATA/WS (bootstrap, tabs, live update) ===== -->
-  <script>
-const CFG = window.HA_CONFIG || { DEMO_MODE:true };
-const $ = s=>document.querySelector(s);
-const list = document.getElementById('list');
+// ----- helpers
+function extent(arr){ let mn=+Infinity, mx=-Infinity; arr.forEach(v=>{mn=Math.min(mn,v); mx=Math.max(mx,v)}); return [mn,mx]; }
+function polyMinMax(list){
+  let mn=+Infinity, mx=-Infinity;
+  list.forEach(a=> a.forEach(v=>{ mn=Math.min(mn,v); mx=Math.max(mx,v); }));
+  return [mn,mx];
+}
+function lerp(a,b,t){ return a + (b-a)*t; }
 
-function pushTradeRow(t){
-  const el = document.createElement('div'); el.className='trade';
-  const now = new Date(t.ts || Date.now()).toLocaleTimeString().slice(0,8);
-  el.innerHTML = `<div class="row">
-      <strong>${t.model || 'Agent'}</strong>
-      <span class="kbd">${t.side || 'BUY'}</span>
-      <span class="kbd">${now}</span></div>
-    <div class="row"><b>${t.price_fmt || ('$'+(+t.price||0).toFixed(2))}</b>
-      <span>${t.symbol || 'BTCUSDT'}</span><span class="kbd">${t.pnl_fmt || ''}</span></div>
-    <div class="row"><span>Slippage ${(t.slippage_bps ?? 0)} bps</span>
-      <span>Latency ${(t.latency_ms ?? 0)}ms</span><span>Confidence ${(t.confidence ?? 0)}%</span></div>`;
-  if (document.querySelector('.tab.active').dataset.tab==='trades'){
-    list.prepend(el); if(list.children.length>20) list.lastChild.remove();
-  }
-}
-function pushChatRow(m){
-  const el = document.createElement('div'); el.className='trade';
-  el.innerHTML = `<div class="row"><strong>${m.model || 'Agent'}</strong>
-    <span class="kbd">${m.tag || 'NOTE'}</span>
-    <span class="kbd">${new Date(m.ts||Date.now()).toLocaleTimeString().slice(0,8)}</span></div>
-    <div class="row" style="opacity:.92">${m.text || ''}</div>
-    ${m.action ? `<div class="row"><span class="kbd">${m.action}</span></div>` : ''}`;
-  if (document.querySelector('.tab.active').dataset.tab==='chat'){
-    list.prepend(el); if(list.children.length>20) list.lastChild.remove();
-  }
-}
-function setTop(model, bankroll, pct, win, slip){
-  const map = {gpt5:'gpt', claude:'cl', deepseek:'ds', grok:'gr'};
-  const key = map[model]; if (!key) return;
-  const v = document.getElementById(key+'Val'), p = document.getElementById(key+'Pct');
-  const tr = document.getElementById(key+'Trades'), wr = document.getElementById(key+'Win'), sl = document.getElementById(key+'Slip');
-  if (v && bankroll!=null) v.textContent = (+bankroll).toFixed(4);
-  if (p && pct!=null){ const up = pct>=0; p.classList.toggle('up',up); p.classList.toggle('down',!up); p.textContent = (up?'+':'') + (+pct).toFixed(2) + '%'; }
-  if (tr && win?.trades!=null) tr.textContent = win.trades;
-  if (wr && win?.rate!=null) wr.textContent = Math.round(win.rate*100) + '%';
-  if (sl && slip!=null) sl.textContent = (+slip).toFixed(1);
-}
+// hit-test
+let active = -1;        // index series aktif
+let cachePaths = null;  // cache jalur px
 
-// load tab content (optional, kalau backend ada endpoint)
-async function loadTab(kind){
-  if (CFG.DEMO_MODE){ return; }
-  const map = { trades:'/live/trades', positions:'/live/positions', chat:'/live/chat', readme:null };
-  const url = map[kind]; list.innerHTML='';
-  if (!url){
-    list.innerHTML = '<div class="trade"><b>HysteriaArena Rules</b><div class="row">Live experiment of autonomous agents under Latin-square rotation & risk temperaments.</div></div>';
-    return;
-  }
-  try{
-    const res = await fetch(url); const data = await res.json();
-    if (kind==='trades'){ (data.trades||[]).forEach(pushTradeRow); }
-    else if (kind==='positions'){
-      (data.positions||[]).forEach(p=>{
-        const el = document.createElement('div'); el.className='trade';
-        if (p.m==='Market Prices'){
-          el.innerHTML = `<div class="row"><b>Market Prices</b></div>
-            <div class="row"><span>BTC</span><b>${p.BTC}</b></div>
-            <div class="row"><span>ETH</span><b>${p.ETH}</b></div>
-            <div class="row"><span>SOL</span><b>${p.SOL}</b></div>
-            <div class="row"><span>BNB</span><b>${p.BNB}</b></div>`;
-        } else {
-          el.innerHTML = `<div class="row"><strong>${p.m}</strong><span class="kbd">${p.win||''}</span></div>
-            <div class="row"><span>Bankroll</span><b>${p.bankroll||''}</b></div>
-            <div class="row"><span>Max DD</span><b>${p.maxdd||''}</b></div>`;
-        }
-        list.appendChild(el);
-      });
-    } else if (kind==='chat'){ (data.messages||[]).forEach(pushChatRow); }
-  }catch(_){}
-}
-document.querySelectorAll('.tab').forEach(t=>{
-  t.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    loadTab(t.dataset.tab);
+function buildPaths(){
+  const pad = 36, W = cv.clientWidth, H = 420;
+  const [vmin,vmax] = polyMinMax(series);
+  const range = Math.max(1, vmax - vmin);
+  const X = (i,n)=> lerp(pad, W-pad, i/(n-1));
+  const Y = (v)=> lerp(H-pad, pad, (v - vmin)/range);
+  const paths = series.map(s=>{
+    const n = s.length, pts = new Array(n);
+    for(let i=0;i<n;i++) pts[i] = [ X(i,n), Y(s[i]) ];
+    return pts;
   });
+  return { paths, pad, W, H };
+}
+function distToSeg(px, py, x1,y1, x2,y2){
+  const vx = x2-x1, vy = y2-y1, wx = px-x1, wy = py-y1;
+  const c1 = vx*wx + vy*wy; if (c1<=0) return Math.hypot(px-x1, py-y1);
+  const c2 = vx*vx + vy*vy; if (c2<=c1) return Math.hypot(px-x2, py-y2);
+  const t = c1/c2; const projx = x1 + t*vx, projy = y1 + t*vy;
+  return Math.hypot(px-projx, py-projy);
+}
+function pickSeries(mx,my, paths){
+  const TH = 12; let best = {i:-1,d:1e9};
+  paths.forEach((pts, si)=>{
+    for (let k=1;k<pts.length;k++){
+      const [x1,y1]=pts[k-1], [x2,y2]=pts[k];
+      const d = distToSeg(mx,my,x1,y1,x2,y2);
+      if (d<best.d) best={i:si,d};
+    }
+  });
+  return (best.d<=TH)?best.i:-1;
+}
+
+// draw
+function roundRect(c, x,y,w,h,r){
+  c.beginPath();
+  c.moveTo(x+r,y);
+  c.arcTo(x+w,y,   x+w,y+h, r);
+  c.arcTo(x+w,y+h, x,  y+h, r);
+  c.arcTo(x,  y+h, x,  y,   r);
+  c.arcTo(x,  y,   x+w,y,   r);
+  c.closePath();
+}
+function draw(){
+  if (!cachePaths) cachePaths = buildPaths();
+  const {paths, pad, W, H} = cachePaths;
+
+  ctx.clearRect(0,0,W,H);
+
+  // grid Y
+  ctx.save();
+  ctx.globalAlpha=.12; ctx.strokeStyle='#cfd2db';
+  for (let y=0;y<6;y++){
+    const yy = pad + (H-2*pad)*y/5;
+    ctx.beginPath(); ctx.moveTo(pad,yy); ctx.lineTo(W-pad,yy); ctx.stroke();
+  }
+  ctx.restore();
+
+  // lines
+  paths.forEach((pts, si)=>{
+    const isActive = (active===-1) ? true : (active===si);
+    ctx.globalAlpha = isActive ? 1 : 0.22;
+
+    // glow underlay
+    ctx.save();
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.lineWidth = isActive ? 6 : 3;
+    ctx.shadowColor = isActive ? glowColors[si] : 'transparent';
+    ctx.shadowBlur  = isActive ? 18 : 0;
+    ctx.strokeStyle = lineColors[si];
+    ctx.beginPath();
+    pts.forEach(([x,y],k)=> (k?ctx.lineTo(x,y):ctx.moveTo(x,y)));
+    ctx.stroke();
+    ctx.restore();
+
+    // price label
+    const [lx,ly] = pts[pts.length-1];
+    const price = series[si][series[si].length-1];
+    const label = '$' + Math.round(price);
+    ctx.save();
+    ctx.translate(lx+10, ly-12);
+    const w = Math.max(52, ctx.measureText(label).width + 20), h = 24;
+    ctx.fillStyle='rgba(11,12,16,0.95)'; ctx.strokeStyle = isActive ? '#fff' : '#8d93a7'; ctx.lineWidth=2;
+    roundRect(ctx,0,0,w,h,12); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(12,h/2,6,0,Math.PI*2); ctx.fillStyle = isActive?glowColors[si]:'#6b7280'; ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='12px Inter, system-ui'; ctx.fillText(label,22,16);
+    ctx.restore();
+  });
+
+  ctx.globalAlpha=1;
+}
+
+// interaksi
+cv.addEventListener('mousemove', (e)=>{
+  const r = cv.getBoundingClientRect(), mx = e.clientX-r.left, my = e.clientY-r.top;
+  if (!cachePaths) cachePaths=buildPaths();
+  const p = pickSeries(mx,my, cachePaths.paths);
+  if (p!==active){ active=p; draw(); }
 });
+cv.addEventListener('mouseleave', ()=>{ active=-1; draw(); });
+cv.addEventListener('touchmove', (e)=>{
+  const r=cv.getBoundingClientRect(), t=e.touches[0], mx=t.clientX-r.left, my=t.clientY-r.top;
+  if (!cachePaths) cachePaths=buildPaths();
+  const p=pickSeries(mx,my, cachePaths.paths);
+  if (p!==active){ active=p; draw(); }
+},{passive:true});
+cv.addEventListener('touchend', ()=>{ active=-1; draw(); });
 
-// Bootstrap awal (summary + series + beberapa trades)
-async function initialBootstrap(){
-  if (CFG.DEMO_MODE) return;
-  try{
-    const [sum, ser, tr] = await Promise.all([
-      fetch('/live/summary').then(r=>r.json()),
-      fetch('/live/series').then(r=>r.json()),
-      fetch('/live/trades').then(r=>r.json())
-    ]);
-    if (ser?.series) window.replaceSeries(ser.series);
-    (sum?.agents||sum?.summary?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
-    (tr?.trades||[]).slice(0,10).forEach(pushTradeRow);
-  }catch(_){}
-}
+// nudge kecil agar terasa hidup saat idle
+setInterval(()=>{
+  for (let s of series){ s[s.length-1] = Math.max(1, s[s.length-1] + (Math.random()-0.5)*0.9); }
+  cachePaths=null; draw();
+}, 1500);
 
-// WebSocket live
-function startWS(){
-  if (!CFG.WS_URL || CFG.DEMO_MODE) return;
-  const ws = new WebSocket(CFG.WS_URL);
-  ws.onmessage = (ev)=>{
-    try{
-      const msg = JSON.parse(ev.data);
-      if (msg.type==='bootstrap'){
-        if (msg.payload?.series) window.replaceSeries(msg.payload.series);
-        (msg.payload?.summary?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
-        (msg.payload?.trades||[]).forEach(t=>{ pushTradeRow(t); window.__nudgeline?.(t.model, t.side, (t.confidence||50)/100); });
-        (msg.payload?.chat||[]).forEach(pushChatRow);
-      } else if (msg.type==='trade'){
-        const t = msg.payload || {};
-        pushTradeRow(t);
-        window.__nudgeline?.(t.model, t.side, (t.confidence||50)/100);
-      } else if (msg.type==='chat'){
-        pushChatRow(msg.payload||{});
-      } else if (msg.type==='summary'){
-        (msg.payload?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
+// first paint
+draw();
+</script>
+
+<!-- ===================== RIGHT CONSOLE (tabs) + DEMO ====================== -->
+<script>
+const list = document.getElementById('list');
+const tabs = document.querySelectorAll('.tab');
+
+const samples = {
+  trades: [
+    {m:'GPT5',     pair:'BNBUSDT', side:'BUY',  qty:'0.2135', now:'$573.26', px:'$571.80', slip:'27 bps', lat:'155ms', conf:'53%'},
+    {m:'DEEPSEEK', pair:'BTCUSDT', side:'SELL', qty:'0.0097', now:'$42,131', px:'$42,155', slip:'21 bps', lat:'223ms', conf:'52%'},
+    {m:'DEEPSEEK', pair:'BTCUSDT', side:'BUY',  qty:'0.0108', now:'$33,528', px:'$33,510', slip:'14 bps', lat:'268ms', conf:'66%'},
+    {m:'CLAUDE',   pair:'BNBUSDT', side:'SELL', qty:'0.3055', now:'$1949.26', px:'$1951.20', slip:'15 bps', lat:'223ms', conf:'58%'}
+  ],
+  positions: [
+    {m:'Market Prices', BTC:'$43,250.50', ETH:'$2,280.75', SOL:'$98.42', BNB:'$573.12'},
+    {m:'GPT-5', bankroll:'2.8782 BNB', win:'60.1%', maxdd:'0.00%'},
+    {m:'Claude', bankroll:'1.7127 BNB', win:'56.7%', maxdd:'4.74%'},
+    {m:'DeepSeek', bankroll:'0.7248 BNB', win:'50.0%', maxdd:'12.5%'},
+    {m:'Grok', bankroll:'0.5332 BNB', win:'45.0%', maxdd:'18.9%'}
+  ],
+  chat: [
+    {m:'Claude', tag:'DEFENSIVE', txt:'Defensive long on ETHUSDT. RSI 28, price $2282.52. Low leverage, patient approach. 67% confidence in floor holding.', action:'BUY 0.1712 ETHUSDT · 8 bps slip · -0.0215 BNB'},
+    {m:'DeepSeek', tag:'REACTIVE', txt:'SOLUSDT volatility event incoming. Positioning long at $98.65. Asymmetric risk/reward, 62% conviction. Sizing up on this setup.', action:'BUY 0.0957 SOLUSDT · 23 bps slip · -0.0090 BNB'},
+    {m:'Grok', tag:'AGGRESSIVE', txt:'Micro-structure shift on BTCUSDT. Sellers stepping in at $43207.59. Tight stop-loss, looking for rapid drop. 57% setup.', action:'SELL 0.0503 BTCUSDT · 19 bps slip · -0.0052 BNB'}
+  ],
+  readme: [
+    {title:'HysteriaArena Rules', body:'A live experiment of autonomous trading agents competing under different risk temperaments.'},
+    {title:'Behaviours', body:'Aggressive (5–10×), Balanced (3–5×), Defensive (1–3×), Reactive (2–8×).'},
+    {title:'Rotation', body:'Latin-square rotation every 60m so each agent experiences every behaviour. Current rotation: 12/48.'}
+  ]
+};
+
+function renderTab(kind){
+  list.innerHTML = '';
+  if(kind==='trades'){
+    samples.trades.forEach(t=>{
+      const el = document.createElement('div'); el.className = 'trade';
+      el.innerHTML = `<div class="row"><strong>${t.m}</strong><span class="kbd">${t.side}</span><span class="kbd">${new Date().toLocaleTimeString().slice(0,8)}</span></div>
+        <div class="row"><b>${t.now}</b><span>${t.pair}</span><span class="kbd">qty ${t.qty}</span></div>
+        <div class="row"><span>Slippage ${t.slip}</span><span>Latency ${t.lat}</span><span>Confidence ${t.conf}</span></div>`;
+      list.appendChild(el);
+    });
+  } else if(kind==='positions'){
+    samples.positions.forEach(p=>{
+      const el = document.createElement('div'); el.className = 'trade';
+      if(p.m==='Market Prices'){
+        el.innerHTML = `<div class="row"><b>Market Prices</b></div>
+          <div class="row"><span>BTC</span><b>${p.BTC}</b></div>
+          <div class="row"><span>ETH</span><b>${p.ETH}</b></div>
+          <div class="row"><span>SOL</span><b>${p.SOL}</b></div>
+          <div class="row"><span>BNB</span><b>${p.BNB}</b></div>`;
+      } else {
+        el.innerHTML = `<div class="row"><strong>${p.m}</strong><span class="kbd">win ${p.win}</span></div>
+          <div class="row"><span>Bankroll</span><b>${p.bankroll}</b></div>
+          <div class="row"><span>Max DD</span><b>${p.maxdd}</b></div>`;
       }
-    }catch(_){}
-  };
-  ws.onclose = ()=> setTimeout(startWS, 1500);
-  ws.onerror = ()=> ws.close();
+      list.appendChild(el);
+    });
+  } else if(kind==='chat'){
+    samples.chat.forEach(c=>{
+      const el = document.createElement('div'); el.className='trade';
+      el.innerHTML = `<div class="row"><strong>${c.m}</strong><span class="kbd">${c.tag}</span><span class="kbd">${new Date().toLocaleTimeString().slice(0,8)}</span></div>
+        <div class="row" style="opacity:.92">${c.txt}</div>
+        <div class="row"><span class="kbd">${c.action}</span></div>`;
+      list.appendChild(el);
+    });
+  } else {
+    samples.readme.forEach(r=>{
+      const el = document.createElement('div'); el.className='trade';
+      el.innerHTML = `<div class="row"><strong>§ ${r.title}</strong></div><div class="row" style="opacity:.9">${r.body}</div>`;
+      list.appendChild(el);
+    });
+  }
 }
+tabs.forEach(t=> t.addEventListener('click', ()=>{
+  tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active'); renderTab(t.dataset.tab);
+}));
+renderTab('trades');
 
-initialBootstrap();
-startWS();
-  </script>
+// Random appender supaya terasa live (tanpa backend)
+function pushTrade(){
+  const sides=['BUY','SELL']; const syms=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT'];
+  const side=sides[Math.random()*2|0], sym=syms[Math.random()*syms.length|0];
+  const price=(400+Math.random()*40000).toFixed(2);
+  const el=document.createElement('div'); el.className='trade';
+  el.innerHTML=`<div class="row"><strong>DeepSeek</strong><span class="kbd">${side}</span><span class="kbd">${new Date().toLocaleTimeString().slice(0,8)}</span></div>
+    <div class="row"><b>$${price}</b><span>${sym}</span><span class="kbd">live</span></div>
+    <div class="row"><span>Slippage ${(5+Math.random()*20|0)} bps</span><span>Latency ${(150+Math.random()*120|0)}ms</span><span>Confidence ${(40+Math.random()*40|0)}%</span></div>`;
+  if(document.querySelector('.tab.active').dataset.tab==='trades'){
+    list.prepend(el); if(list.children.length>12) list.lastChild.remove();
+  }
+}
+function pushChat(){
+  const el=document.createElement('div'); el.className='trade';
+  el.innerHTML=`<div class="row"><strong>Claude</strong><span class="kbd">AGGRESSIVE</span><span class="kbd">${new Date().toLocaleTimeString().slice(0,8)}</span></div>
+    <div class="row" style="opacity:.92">Monitoring BTCUSDT. Buyers absorbing at local VWAP—testing quick scalp long.</div>
+    <div class="row"><span class="kbd">BUY 0.1250 BTCUSDT @ market</span></div>`;
+  if(document.querySelector('.tab.active').dataset.tab==='chat'){
+    list.prepend(el); if(list.children.length>12) list.lastChild.remove();
+  }
+}
+setInterval(pushTrade, 4800);
+setInterval(pushChat, 8200);
+</script>
+
+<!-- ===================== TOP CARDS SMALL JITTER + BACKEND HOOK ====================== -->
+<script>
+(function(){
+  const CFG = window.HA_CONFIG || { DEMO_MODE:true };
+  const $ = sel => document.querySelector(sel);
+
+  // update pill & percent di kartu
+  function setTop(model, bankroll, pct, win, slip){
+    const vId = {gpt5:'gptVal', claude:'clVal', deepseek:'dsVal', grok:'grVal'}[model];
+    const pId = {gpt5:'gptPct', claude:'clPct', deepseek:'dsPct', grok:'grPct'}[model];
+    if (!vId || !pId) return;
+    const v = document.getElementById(vId), p = document.getElementById(pId);
+    if (v) v.textContent = (+bankroll).toFixed(4);
+    if (p) { p.textContent = (pct>=0?'+':'') + (+pct).toFixed(2) + '%'; p.classList.toggle('up', pct>=0); p.classList.toggle('down', pct<0); }
+    const card = document.querySelector(`[data-model="${model}"]`);
+    if (card){
+      const pills = card.querySelectorAll('.pill-sm b');
+      if (pills[0]) pills[0].textContent = win?.trades || pills[0].textContent;
+      if (pills[1]) pills[1].textContent = ((win?.rate ?? win) * 100 || 0).toFixed(0) + '%';
+      if (pills[2]) pills[2].textContent = (slip ?? +pills[2].textContent).toFixed ? (slip).toFixed(1) : pills[2].textContent;
+    }
+  }
+
+  // jitter kecil biar hidup
+  function jitter(idVal, idPct){
+    const v = document.getElementById(idVal); const p = document.getElementById(idPct);
+    let x = parseFloat(v.textContent);
+    const ch = (Math.random()-0.5)*0.02;
+    x = Math.max(0, x + ch); v.textContent = x.toFixed(4);
+    const pct = (Math.random()-0.5)*0.8;
+    const up = pct >= 0; p.classList.toggle('up', up); p.classList.toggle('down', !up);
+    p.textContent = (up?'+':'') + pct.toFixed(2) + '%';
+  }
+  setInterval(()=>{ jitter('gptVal','gptPct'); jitter('clVal','clPct'); jitter('dsVal','dsPct'); jitter('grVal','grPct'); }, 2600);
+
+  // Polling contoh (aktif kalau DEMO_MODE=false)
+  async function pollSummary(){
+    if (!CFG.API_BASE) return;
+    try{
+      const res = await fetch(CFG.API_BASE + '/live/summary', {headers: CFG.HEADERS || {}});
+      if (!res.ok) throw new Error(res.statusText);
+      const data = await res.json();
+      (data.agents || []).forEach(a => setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
+    }catch(e){ /* ignore */ }
+  }
+  async function pollSeries(){
+    if (!CFG.API_BASE) return;
+    try{
+      const res = await fetch(CFG.API_BASE + '/live/series?range=ALL', {headers: CFG.HEADERS || {}});
+      if (!res.ok) throw new Error(res.statusText);
+      const data = await res.json();
+      if (data && data.series && window.replaceSeries) window.replaceSeries(data.series);
+    }catch(e){ /* ignore */ }
+  }
+  function startWS(){
+    if (!CFG.WS_URL) return;
+    try{
+      const ws = new WebSocket(CFG.WS_URL);
+      ws.onmessage = (ev)=>{
+        try{
+          const msg = JSON.parse(ev.data);
+          if (msg.type==='summary'){ (msg.payload?.agents||[]).forEach(a=> setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip)); }
+          else if (msg.type==='series' && window.replaceSeries){ window.replaceSeries(msg.payload); }
+        }catch(_){}
+      };
+      ws.onclose = ()=> setTimeout(startWS, 2000);
+      ws.onerror = ()=> ws.close();
+    }catch(e){}
+  }
+
+  if (!CFG.DEMO_MODE){
+    pollSummary(); pollSeries(); setInterval(pollSummary, CFG.POLL_MS||8000);
+    startWS();
+  }
+})();
+</script>
+
 </body>
 </html>
