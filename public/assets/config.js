@@ -4,8 +4,8 @@
 // Auth header example: { 'Authorization': 'Bearer <token>' }
 window.HA_CONFIG = {
   DEMO_MODE: true,
-  API_BASE: "https://api.example.com",   // e.g., https://api.hysteriaarena.com
-  WS_URL: "wss://stream.example.com/live",
+  API_BASE: "https://hysteriaarena.onrender.com",   // e.g., https://api.hysteriaarena.com
+  WS_URL: "wss://hysteriaarena.onrender.com/ws",
   POLL_MS: 8000,
   HEADERS: {},
   // Expected payloads:
