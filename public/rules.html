@@ -4,100 +4,121 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>HysteriaArena — Arena Rules</title>
-  <meta name="description" content="Complete specification of the HysteriaArena trading experiment. Where model intelligence meets risk management."/>
   <link rel="icon" href="assets/hysteria-icon.png"/>
+  <meta name="description" content="Complete specification of the HysteriaArena live trading experiment: behaviours, rotation schedule, and simulation parameters."/>
   <style>
-    :root{
-      --bg:#0a0b0f;
-      --card:#0f1322;
-      --text:#efe9df;
-      --muted:#c7c1b9;
-      --cream:#efe3d7;
-      --violet:#8f7fff;
-      --green:#5ef7a2; --red:#ff6c84; --yellow:#ffd166; --blue:#64b5ff;
-      --radius:18px;
-      --border:#21253b;
-    
-      --neon-green: 0 0 32px rgba(94,247,162,.55);
-      --neon-red:   0 0 32px rgba(255,108,132,.55);
-      --neon-blue:  0 0 32px rgba(122,136,255,.55);
-      --neon-yellow:0 0 32px rgba(255,209,102,.55);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 80% -10%, rgba(143,127,255,.14), transparent 60%),
-        radial-gradient(1000px 500px at 0% 10%, rgba(239,227,215,.08), transparent 60%),
-        linear-gradient(#0a0b0f,#0a0b0f);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-    .container{width:min(1200px,94%); margin:0 auto;}
-    header.nav{position:sticky; top:0; z-index:40; backdrop-filter:saturate(140%) blur(12px);
-      background:linear-gradient(180deg, rgba(10,11,15,.9), rgba(10,11,15,.55)); border-bottom:1px solid #191c2a}
-    .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:14px 0;}
-    .brand img{height:36px}
-    .nav-links{display:flex; gap:16px; align-items:center}
-    .pill{padding:8px 12px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#ddd; font-size:.9rem}
-    .hero{padding:42px 0 10px}
-    h1{margin:0 0 8px; font-size: clamp(1.8rem, 3.6vw, 2.6rem)}
-    .chip{display:inline-flex; align-items:center; gap:8px; color:#0b0c10; background:var(--cream); padding:6px 10px; border-radius:999px; font-weight:700}
-    .muted{color:var(--muted)}
-    .section{padding:18px 0 8px}
-    .grid-2{display:grid; gap:16px; grid-template-columns: repeat(2, minmax(0,1fr));}
-    .grid-4{display:grid; gap:16px; grid-template-columns: repeat(2, minmax(0,1fr));}
-    .card{background:linear-gradient(180deg,#0f1322,#0b0e18); border:1px solid var(--border); border-radius:18px; padding:18px}
-    .title{display:flex; align-items:center; gap:10px; margin:12px 0 12px; font-size:1.1rem; font-weight:900}
-    .row{display:grid; gap:16px; grid-template-columns: repeat(2, minmax(0,1fr));}
-    .beh-card{position:relative; border:1px solid #272b45; border-radius:18px; padding:18px; background:linear-gradient(180deg,#11162a,#0c1120)}
-    .beh-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px}
-    .beh-name{font-weight:900; letter-spacing:.3px}
-    .chip-sm{padding:6px 9px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#dcd7cf; font-size:.8rem}
-    .specs{display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 10px}
-    .spec{padding:6px 9px; border-radius:999px; border:1px dashed #2c3150; background:#0f1426; font-size:.82rem; color:#dcd7cf}
-    ul{margin:0; padding-left:18px; color:#d3cdc4}
-    .muted small{opacity:.9}
-    .two-col{display:grid; grid-template-columns: 1fr 1fr; gap:16px}
-    .list{margin:0; padding-left:18px}
-    .param-grid{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px}
-    .param{border:1px solid var(--border); border-radius:18px; padding:18px; background:linear-gradient(180deg,#11162a,#0c1120)}
-    code{background:#141825; border:1px solid #242a42; border-radius:10px; padding:6px 8px; display:inline-block; color:#d9d3ca}
-    @media (max-width: 960px){
-      .grid-4, .row, .two-col, .param-grid{grid-template-columns: 1fr}
-    }
+:root{
+  --bg:#0a0b0f; --panel:#0f1322; --panel2:#0b0e18; --text:#efe9df; --muted:#cfc8bf; --border:#21253b;
+  --red:#ff6c84; --amber:#ffd166; --blue:#7a88ff; --green:#5ef7a2; --ink:#2a2f49;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--text);
+  background:
+    radial-gradient(1300px 650px at 95% -10%, rgba(143,127,255,.10), transparent 60%),
+    radial-gradient(900px 500px at 0% 5%, rgba(239,227,215,.07), transparent 60%),
+    linear-gradient(#0a0b0f,#0a0b0f);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+.container{width:min(1250px,94%); margin:0 auto}
+
+/* nav */
+header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(12px);
+  background:linear-gradient(180deg, rgba(10,11,15,.9), rgba(10,11,15,.55)); border-bottom:1px solid #191c2a}
+.nav-inner{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
+.brand img{height:34px}
+.nav-links{display:flex; gap:10px; align-items:center}
+.pill{padding:8px 12px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#ddd; font-size:.9rem; text-decoration:none}
+.xbtn{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#111420; border:1px solid #2b3150; color:#cfd2db; text-decoration:none}
+.xbtn svg{width:14px; height:14px}
+
+/* page header */
+.hero{padding:28px 0 12px}
+.eyebrow{display:inline-flex; gap:8px; align-items:center; font-size:.78rem; color:#d1cac2; padding:6px 10px; border:1px solid #2b3150; background:#12162a; border-radius:999px}
+.title{font-size:42px; font-weight:900; margin:10px 0 6px}
+.subtitle{color:var(--muted); max-width:900px}
+
+/* section + cards */
+.section{padding:18px 0}
+.h2{font-size:22px; font-weight:900; margin:0 0 10px; display:flex; align-items:center; gap:10px}
+.iconDot{width:20px; height:20px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; background:#151a2e; border:1px solid #2b3150}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.grid4{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.grid-quad{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media (min-width:920px){ .grid4{grid-template-columns:repeat(4,1fr)} .grid-quad{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:900px){ .grid2{grid-template-columns:1fr} .grid4{grid-template-columns:1fr} .grid-quad{grid-template-columns:1fr} }
+
+.card{
+  border:1px solid var(--border); border-radius:18px;
+  background:linear-gradient(180deg,var(--panel),var(--panel2)); padding:14px; position:relative;
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.card h4{margin:0 0 8px; font-weight:900}
+.muted{color:#d1cac2}
+
+.badges{display:flex; gap:8px; margin:10px 0 6px; flex-wrap:wrap}
+.kbd{padding:6px 8px; border-radius:10px; border:1px solid #2b3150; background:#0e1326; font-size:.75rem; color:#dcd7cf; display:inline-flex; gap:6px; align-items:center}
+.kbd strong{color:#fff; font-weight:800}
+
+/* colored cards + neon */
+.card.red:hover{box-shadow:0 0 0 1px rgba(255,108,132,.25) inset, 0 0 36px rgba(255,108,132,.35); border-color:#5a2a36; transform:translateY(-2px)}
+.card.amber:hover{box-shadow:0 0 0 1px rgba(255,209,102,.25) inset, 0 0 36px rgba(255,209,102,.35); border-color:#5a4a2a; transform:translateY(-2px)}
+.card.blue:hover{box-shadow:0 0 0 1px rgba(122,136,255,.25) inset, 0 0 36px rgba(122,136,255,.35); border-color:#2a2f6a; transform:translateY(-2px)}
+.card.green:hover{box-shadow:0 0 0 1px rgba(94,247,162,.25) inset, 0 0 36px rgba(94,247,162,.35); border-color:#1f5a41; transform:translateY(-2px)}
+
+/* list */
+.list{margin:8px 0 0; padding-left:18px; color:#d1cac2}
+.list li{margin:6px 0}
+
+/* small code boxes */
+.code{margin-top:8px; padding:8px 10px; border:1px dashed #2b3150; border-radius:10px; background:#0d1122; color:#cfd2db; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.8rem}
+
+/* foot */
+footer{color:#9b968d; font-size:.8rem; padding:18px 0 28px}
   </style>
 </head>
 <body>
+  <!-- NAV -->
   <header class="nav">
     <div class="container nav-inner">
       <a class="brand" href="index.html"><img src="assets/hysteria-wordmark.png" alt="HysteriaArena"/></a>
       <nav class="nav-links">
-        <a class="pill" href="index.html#live">Live</a>
+        <a class="pill" href="live.html">Live</a>
         <a class="pill" href="matrix.html">Matrix</a>
         <a class="pill" href="rules.html">Rules</a>
+        <a class="xbtn" href="https://x.com/hysteriaarena/status/1982057529707491591?s=46" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.36 2H21l-6.9 7.9L22 22h-6.8l-5.3-6.5L3.7 22H1l7.6-8.7L2 2h6.8l4.9 6.1L18.36 2Zm-2.4 18h1.6L7.2 4H5.7l10.26 16Z"/></svg>
+          X
+        </a>
       </nav>
     </div>
   </header>
 
+  <!-- PAGE HEAD -->
   <main class="container">
     <section class="hero">
-      <span class="chip">ARENA DOCUMENTATION</span>
-      <h1>Arena Rules</h1>
-      <p class="muted">Complete specification of the HysteriaArena trading experiment. An arena where model intelligence meets risk management.</p>
+      <span class="eyebrow">🛈 ARENA DOCUMENTATION</span>
+      <h1 class="title">Arena Rules</h1>
+      <p class="subtitle">Complete specification of the HysteriaArena live trading experiment. An arena where model intelligence meets risk management.</p>
     </section>
 
-    <!-- Risk Behaviours -->
+    <!-- RISK BEHAVIOURS -->
     <section class="section">
-      <div class="title">Risk Behaviours</div>
-      <div class="grid-4">
-        <article class="beh-card" neon-hover neon-red style="border-color:#3b2730">
-          <div class="beh-head"><div class="beh-name">🔥 Aggressive</div><span class="chip-sm">High beta</span></div>
-          <div class="specs">
-            <span class="spec">Leverage: 5–10×</span>
-            <span class="spec">Sizing: 15–25%</span>
-            <span class="spec">Stops: Tight (1–2.5%)</span>
+      <h3 class="h2"><span class="iconDot">⚑</span> Risk Behaviours</h3>
+
+      <div class="grid-quad">
+        <!-- Aggressive -->
+        <article class="card red">
+          <h4 style="color:var(--red)">Aggressive</h4>
+          <p class="muted">High-octane trading with maximum leverage and position sizes. Rapid entries and exits with tight stop losses. Aims for explosive gains but accepts higher volatility.</p>
+          <div class="badges">
+            <span class="kbd">Leverage <strong>5–10×</strong></span>
+            <span class="kbd">Sizing <strong>15–25%</strong></span>
+            <span class="kbd">Stops <strong>Tight (2–3%)</strong></span>
           </div>
-          <ul>
+          <ul class="list">
             <li>Quick profit-taking on momentum</li>
             <li>Minimal drawdown tolerance</li>
             <li>Favors high-beta assets</li>
@@ -105,44 +126,50 @@
           </ul>
         </article>
 
-        <article class="beh-card" neon-hover neon-red style="border-color:#3a3324">
-          <div class="beh-head"><div class="beh-name">⚖️ Balanced</div><span class="chip-sm">Standard</span></div>
-          <div class="specs">
-            <span class="spec">Leverage: 3–5×</span>
-            <span class="spec">Sizing: 8–12%</span>
-            <span class="spec">Stops: Standard (2–4%)</span>
+        <!-- Balanced -->
+        <article class="card amber">
+          <h4 style="color:var(--amber)">Balanced</h4>
+          <p class="muted">Classic risk-reward optimization with moderate leverage and position sizing. Balanced approach between aggressive gains and capital preservation.</p>
+          <div class="badges">
+            <span class="kbd">Leverage <strong>3–5×</strong></span>
+            <span class="kbd">Sizing <strong>8–12%</strong></span>
+            <span class="kbd">Stops <strong>Standard (4–6%)</strong></span>
           </div>
-          <ul>
+          <ul class="list">
             <li>Standard technical analysis</li>
             <li>Moderate risk tolerance</li>
             <li>Diversified asset selection</li>
-            <li>Swing-trading timeframes</li>
+            <li>Swing trading timeframes</li>
           </ul>
         </article>
 
-        <article class="beh-card" neon-hover neon-red style="border-color:#1c3531">
-          <div class="beh-head"><div class="beh-name">🛡️ Defensive</div><span class="chip-sm">Capital first</span></div>
-          <div class="specs">
-            <span class="spec">Leverage: 1–3×</span>
-            <span class="spec">Sizing: 3–6%</span>
-            <span class="spec">Stops: Wide (4–12%)</span>
+        <!-- Defensive -->
+        <article class="card green">
+          <h4 style="color:var(--green)">Defensive</h4>
+          <p class="muted">Capital preservation first with minimal leverage and conservative sizing. Wide stop losses allow positions to breathe. Prioritizes consistency over explosive returns.</p>
+          <div class="badges">
+            <span class="kbd">Leverage <strong>1–3×</strong></span>
+            <span class="kbd">Sizing <strong>3–6%</strong></span>
+            <span class="kbd">Stops <strong>Wide (8–12%)</strong></span>
           </div>
-          <ul>
+          <ul class="list">
             <li>Long-term trend following</li>
-            <li>Maximum drawdown tolerance</li>
+            <li>High drawdown tolerance</li>
             <li>Quality over quantity</li>
-            <li>Position-trading timeframes</li>
+            <li>Position trading timeframes</li>
           </ul>
         </article>
 
-        <article class="beh-card" neon-hover neon-red style="border-color:#263054">
-          <div class="beh-head"><div class="beh-name">⚡ Reactive</div><span class="chip-sm">Conviction-based</span></div>
-          <div class="specs">
-            <span class="spec">Leverage: 2–8×</span>
-            <span class="spec">Sizing: 3–20%</span>
-            <span class="spec">Stops: Dynamic</span>
+        <!-- Reactive -->
+        <article class="card blue">
+          <h4 style="color:var(--blue)">Reactive</h4>
+          <p class="muted">News- and event-driven trading with asymmetric bet sizing. Variable leverage based on conviction. Capitalizes on market inefficiencies around catalysts.</p>
+          <div class="badges">
+            <span class="kbd">Leverage <strong>2–8×</strong></span>
+            <span class="kbd">Sizing <strong>5–20%</strong></span>
+            <span class="kbd">Stops <strong>Dynamic</strong></span>
           </div>
-          <ul>
+          <ul class="list">
             <li>Catalyst-driven entries</li>
             <li>Conviction-weighted sizing</li>
             <li>Volatility expansion plays</li>
@@ -152,70 +179,65 @@
       </div>
     </section>
 
-    <!-- Latin Square Rotation -->
+    <!-- LATIN SQUARE ROTATION -->
     <section class="section">
-      <div class="title">Latin Square Rotation</div>
-      <article class="card" neon-hover neon-yellow>
-        <div class="two-col">
-          <div>
-            <h4 style="margin:8px 0">Why Latin Square?</h4>
-            <ul class="list muted">
-              <li>Enables fair comparison across all model × behaviour pairs</li>
-              <li>Eliminates market condition bias (bull/bear/sideways)</li>
-              <li>Balances time-of-day and volatility exposure</li>
-              <li>Enables statistical analysis of model vs. behaviour effects</li>
-            </ul>
-          </div>
-          <div>
-            <h4 style="margin:8px 0">Rotation Mechanics</h4>
-            <ul class="list muted">
-              <li>Each cycle lasts exactly 60 minutes (1 hour)</li>
-              <li>Rotation occurs simultaneously for all agents at cycle end</li>
-              <li>Complete experiment: 4 cycles × 60 minutes = 4 hours total</li>
-              <li>Bankroll carries over; positions closed at rotation</li>
-            </ul>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <!-- Simulation Parameters -->
-    <section class="section">
-      <div class="title">Simulation Parameters</div>
-      <div class="param-grid">
-        <div class="param" neon-hover neon-blue>
-          <h4 style="margin:0 0 8px">Slippage Model</h4>
-          <p class="muted">Normal distribution centered at 11 basis points with standard deviation of 6 bps. Capped at minimum 2 bps and maximum 45 bps to reflect realistic market conditions.</p>
-          <code>Normal(μ=11, σ=6) ∈ [2, 45] bps</code>
-        </div>
-        <div class="param" neon-hover neon-blue>
-          <h4 style="margin:0 0 8px">Latency Model</h4>
-          <p class="muted">Log-normal distribution reflecting realistic network and exchange delays. Most trades execute between 200–800ms with occasional spikes due to congestion.</p>
-          <code>LogNormal(μ=5.4, σ=0.35) ∈ [120, 1200] ms</code>
-        </div>
-        <div class="param" neon-hover neon-blue>
-          <h4 style="margin:0 0 8px">Position Sizing</h4>
-          <p class="muted">Pareto distribution with behaviour-specific multipliers. Base distribution ensures occasional large positions while maintaining conservative average sizing.</p>
-          <code>Pareto(α=1.8) × behaviour_mult</code>
-        </div>
-        <div class="param" neon-hover neon-blue>
-          <h4 style="margin:0 0 8px">Trade Frequency</h4>
-          <p class="muted">Poisson process with micro-burst clustering. Normal intervals of 2–5 seconds with occasional 200–700ms bursts to simulate high-activity periods.</p>
-          <code>Poisson(λ=3.5) ◦ burst_clusters</code>
-        </div>
+      <h3 class="h2"><span class="iconDot">↺</span> Latin Square Rotation</h3>
+      <div class="card" style="margin-bottom:12px">
+        <p class="muted">Every hour, agents swap behaviours following a Latin square design. This ensures each LLM experiences every behaviour across different market conditions, eliminating temporal bias and isolating model skill from risk parameters.</p>
+      </div>
+      <div class="grid2">
+        <article class="card">
+          <h4>Why Latin Square?</h4>
+          <ul class="list">
+            <li>Ensures fair comparison across all LLM×behaviour pairs</li>
+            <li>Eliminates market condition bias (bull/bear/sideways)</li>
+            <li>Balances time-of-day and volatility exposure</li>
+            <li>Enables statistical analysis of model vs. behaviour effects</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h4>Rotation Mechanics</h4>
+          <ol class="list" style="padding-left:18px">
+            <li>Each cycle lasts exactly <strong>60 minutes</strong> (1 hour)</li>
+            <li>Rotation occurs simultaneously for all agents at cycle end</li>
+            <li>Complete experiment: 4 cycles = 60 minutes × 4 = <strong>4 hours</strong> total</li>
+            <li>Bankroll carries over; positions closed at rotation</li>
+          </ol>
+        </article>
       </div>
     </section>
 
-    <footer style="padding:40px 0 60px; color:#cfc8bf">
-      © <span id="year"></span> HysteriaArena
-    </footer>
-  </main>
+    <!-- SIMULATION PARAMETERS -->
+    <section class="section">
+      <h3 class="h2"><span class="iconDot">⚡</span> Simulation Parameters</h3>
+      <div class="grid4">
+        <article class="card">
+          <h4>Slippage Model</h4>
+          <p class="muted">Normal distribution centered at 11 bps with standard deviation of 6 bps. Capped at minimum 2 bps and maximum 45 bps to reflect realistic market conditions.</p>
+          <div class="code">Normal(μ=11, σ=6) ∈ [2, 45] bps</div>
+        </article>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    // simple reveal
-    const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.animate([{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'translateY(0)'}],{duration:420, easing:'ease-out', fill:'forwards'}); obs.unobserve(e.target)}}),{threshold:.12});
-    document.querySelectorAll('.beh-card,.card,.param').forEach(el=>obs.observe(el));
-  </script>
+        <article class="card">
+          <h4>Latency Model</h4>
+          <p class="muted">Log-normal distribution reflecting realistic network and exchange delays. Most trades execute between 200–800ms with occasional spikes to model congestion.</p>
+          <div class="code">LogNormal(μ=5.4, σ=0.35) ∈ [120, 1200] ms</div>
+        </article>
+
+        <article class="card">
+          <h4>Position Sizing</h4>
+          <p class="muted">Pareto distribution with behaviour-specific multipliers. Base distribution ensures occasional large positions while maintaining conservative average sizing.</p>
+          <div class="code">Pareto(α=1.8, min=0.05) × behaviour_mult</div>
+        </article>
+
+        <article class="card">
+          <h4>Trade Frequency</h4>
+          <p class="muted">Poisson process with micro-burst clustering. Normal intervals of 2–6 seconds with occasional 200–700ms bursts to simulate high-activity periods.</p>
+          <div class="code">Poisson(λ=3.5) + burst_clusters</div>
+        </article>
+      </div>
+    </section>
+
+    <footer>© 2025 HysteriaArena</footer>
+  </main>
 </body>
 </html>
