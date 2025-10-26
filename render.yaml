@@ -1,12 +1,9 @@
-
 services:
   - type: web
-    name: hysteriaarena
+    name: hysteriaarena-api
     env: node
     plan: free
-    buildCommand: ""
-    startCommand: node server.js
+    buildCommand: "npm ci"
+    startCommand: "node server.js"
     autoDeploy: true
-    envVars:
-      - key: PORT
-        value: 10000
+    region: oregon
