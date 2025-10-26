@@ -1,69 +1,61 @@
-// server.js
 import express from 'express';
 import cors from 'cors';
-import http from 'http';
 import { WebSocketServer } from 'ws';
+import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-import { state } from './state.js';
-import { startEngine, toSummaryArray, seriesPayload } from './engine.js';
+import { State } from './state.js';
+import { startEngine } from './engine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.use(cors());
+app.use(express.json());
 
-// Jika kamu host web & API di domain yang sama, CORS sebenarnya tak diperlukan,
-// tapi kita tetap izinkan untuk jaga-jaga preview dll.
-app.use(cors({ origin: true }));
+// ---- state (persists to ./state.json) ----
+const state = new State(path.join(__dirname, 'state.json'));
+await state.init();
 
-// Static files
-const PUB = path.join(__dirname, 'public');
-app.use(express.static(PUB, { maxAge: '5m', index: false }));
+// ---- static ----
+app.use(express.static(path.join(__dirname, 'public')));
 
-// --- API (same-origin): /live/summary dan /live/series
-app.get('/healthz', (_, res) => res.send('ok'));
+// ---- REST API ----
+app.get('/live/summary', (_, res) => res.json(state.getSummary()));
+app.get('/live/series', (_, res) => res.json({ series: state.getSeries() }));
+app.get('/live/trades', (_, res) => res.json({ trades: state.getTrades() }));
+app.get('/live/positions', (_, res) => res.json({ positions: state.getPositions() }));
+app.get('/live/chat', (_, res) => res.json({ messages: state.getChat() }));
 
-app.get('/live/summary', (_, res) => {
-  res.json({ ok: true, agents: toSummaryArray(), prices: state.prices, ts: Date.now() });
-});
-
-app.get('/live/series', (req, res) => {
-  res.json({ ok: true, series: seriesPayload(), ts: Date.now() });
-});
-
-// Route untuk file HTML (multi-page)
-app.get('/', (_, res) => res.sendFile(path.join(PUB, 'index.html')));
-app.get('/live.html', (_, res) => res.sendFile(path.join(PUB, 'live.html')));
-app.get('/matrix.html', (_, res) => res.sendFile(path.join(PUB, 'matrix.html')));
-app.get('/rules.html', (_, res) => res.sendFile(path.join(PUB, 'rules.html')));
-
-// HTTP server + WS
+// ---- WS ----
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
-// broadcast helper
-function broadcast(msg) {
-  const data = JSON.stringify(msg);
-  wss.clients.forEach(c => c.readyState === 1 && c.send(data));
+function broadcast(obj) {
+  const data = JSON.stringify(obj);
+  for (const c of wss.clients) {
+    if (c.readyState === 1) c.send(data);
+  }
 }
 
 wss.on('connection', (ws) => {
-  // snapshot awal
-  ws.send(JSON.stringify({ type: 'summary', payload: { agents: toSummaryArray() } }));
-  ws.send(JSON.stringify({ type: 'bootstrap', payload: {
-    trades: state.trades.slice(-10),
-    chat: state.chat.slice(-10),
-    series: seriesPayload()
-  }}));
-  // heartbeat agar koneksi tetap hidup
-  const ping = setInterval(() => { try { ws.ping(); } catch(_) {} }, 25000);
-  ws.on('close', () => clearInterval(ping));
+  ws.send(JSON.stringify({
+    type: 'bootstrap',
+    payload: {
+      series: state.getSeries(),
+      trades: state.getTrades(),
+      positions: state.getPositions(),
+      chat: state.getChat(),
+      summary: state.getSummary()
+    }
+  }));
 });
 
-const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => console.log('HysteriaArena running on :' + PORT));
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+  console.log('HysteriaArena running on :' + PORT);
+});
 
-// jalankan mesin realtime
-startEngine(broadcast);
+// ---- start simulator engine (shared “live”) ----
+startEngine(state, broadcast);
