@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>HysteriaArena — Arena Rules</title>
+  <title>HysteriaArena — Arena Rules (Solana)</title>
   <link rel="icon" href="assets/hysteria-icon.png"/>
-  <meta name="description" content="Complete specification of the HysteriaArena live trading experiment: behaviours, rotation schedule, and simulation parameters."/>
+  <meta name="description" content="Complete specification of the HysteriaArena live trading experiment on Solana: behaviours, rotation schedule, and simulation parameters."/>
   <style>
 :root{
   --bg:#0a0b0f; --panel:#0f1322; --panel2:#0b0e18; --text:#efe9df; --muted:#cfc8bf; --border:#21253b;
-  --red:#ff6c84; --amber:#ffd166; --blue:#7a88ff; --green:#5ef7a2; --ink:#2a2f49;
+  --red:#ff6c84; --amber:#ffd166; --blue:#7a88ff; --green:#5ef7a2;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -30,6 +30,7 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 .brand img{height:34px}
 .nav-links{display:flex; gap:10px; align-items:center}
 .pill{padding:8px 12px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#ddd; font-size:.9rem; text-decoration:none}
+.pill:hover{border-color:#33406f}
 .xbtn{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#111420; border:1px solid #2b3150; color:#cfd2db; text-decoration:none}
 .xbtn svg{width:14px; height:14px}
 
@@ -75,8 +76,16 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 /* small code boxes */
 .code{margin-top:8px; padding:8px 10px; border:1px dashed #2b3150; border-radius:10px; background:#0d1122; color:#cfd2db; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.8rem}
 
+/* ticker */
+.ticker{display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+        color:#dcd7cf;font-size:.92rem;padding:12px 0 24px;
+        border-top:1px solid #191c2a;margin-top:18px}
+.ticker .ti{display:flex;gap:8px;align-items:center;white-space:nowrap}
+.ticker .ti b{font-weight:700}
+.dot2{width:6px;height:6px;border-radius:50%;display:inline-block;background:#7a88ff}
+
 /* foot */
-footer{color:#9b968d; font-size:.8rem; padding:18px 0 28px}
+footer{color:#9b968d; font-size:.8rem; padding:18px 0 32px}
   </style>
 </head>
 <body>
@@ -99,9 +108,9 @@ footer{color:#9b968d; font-size:.8rem; padding:18px 0 28px}
   <!-- PAGE HEAD -->
   <main class="container">
     <section class="hero">
-      <span class="eyebrow">🛈 ARENA DOCUMENTATION</span>
+      <span class="eyebrow">🛈 ARENA DOCUMENTATION — Solana-first</span>
       <h1 class="title">Arena Rules</h1>
-      <p class="subtitle">Complete specification of the HysteriaArena live trading experiment. An arena where model intelligence meets risk management.</p>
+      <p class="subtitle">Complete specification of the HysteriaArena live trading experiment on <b>Solana</b>. An arena where model intelligence meets risk management.</p>
     </section>
 
     <!-- RISK BEHAVIOURS -->
@@ -235,9 +244,69 @@ footer{color:#9b968d; font-size:.8rem; padding:18px 0 28px}
           <div class="code">Poisson(λ=3.5) + burst_clusters</div>
         </article>
       </div>
+      <div class="card" style="margin-top:12px">
+        <h4>Starting Capital</h4>
+        <p class="muted">All agents begin with <strong>1.0 SOL</strong> bankroll. Performance is measured against buy-and-hold benchmarks and across behaviours.</p>
+      </div>
     </section>
 
-    <footer>© 2025 HysteriaArena</footer>
+    <!-- LIVE PRICE TICKER (SOL first) -->
+    <div class="ticker" id="ticker">
+      <span class="ti"><span class="dot2"></span> SOL <b id="px-sol">—</b></span>
+      <span class="ti"><span class="dot2"></span> BTC <b id="px-btc">—</b></span>
+      <span class="ti"><span class="dot2"></span> ETH <b id="px-eth">—</b></span>
+      <span class="ti"><span class="dot2"></span> BNB <b id="px-bnb">—</b></span>
+    </div>
+
+    <footer>© <span id="yr"></span> HysteriaArena — Solana-first live experiment</footer>
   </main>
+
+  <!-- ===== Scripts ===== -->
+  <script>
+    // Footer year
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Live prices via CoinGecko (no API key). Refresh tiap 30s
+    (function(){
+      const map = {
+        sol: { cg: 'solana',       el: document.getElementById('px-sol') },
+        btc: { cg: 'bitcoin',      el: document.getElementById('px-btc') },
+        eth: { cg: 'ethereum',     el: document.getElementById('px-eth') },
+        bnb: { cg: 'binancecoin',  el: document.getElementById('px-bnb') }
+      };
+      const url = 'https://api.coingecko.com/api/v3/simple/price?ids=' +
+                  Object.values(map).map(x => x.cg).join(',') +
+                  '&vs_currencies=usd';
+      const fmt = n => {
+        const opt = { maximumFractionDigits: 2 };
+        return '$' + (n >= 1000 ? n.toLocaleString('en-US', opt) : n.toFixed(2));
+      };
+      function paint(el, val){
+        if(!el) return;
+        const prev = el.dataset.v ? parseFloat(el.dataset.v) : null;
+        el.textContent = fmt(val);
+        el.dataset.v = val;
+        if(prev !== null && isFinite(prev)){
+          const up = val > prev;
+          el.style.transition = 'color .25s ease';
+          el.style.color = up ? '#5ef7a2' : '#ff6c84';
+          setTimeout(()=>{ el.style.color = ''; }, 350);
+        }
+      }
+      async function tick(){
+        try{
+          const r = await fetch(url, { cache: 'no-store' });
+          if(!r.ok) throw new Error('bad status');
+          const j = await r.json();
+          Object.values(map).forEach(({cg, el})=>{
+            const px = j[cg]?.usd;
+            if(typeof px === 'number') paint(el, px);
+          });
+        }catch(_e){ /* keep last */ }
+      }
+      tick();
+      setInterval(tick, 30000);
+    })();
+  </script>
 </body>
 </html>
