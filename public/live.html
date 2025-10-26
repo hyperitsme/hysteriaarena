@@ -10,7 +10,6 @@
   --bg:#0b0e14; --panel:#0f1424; --panel2:#0c1020; --border:#222a44;
   --text:#ecedef; --muted:#bfc6d3; --green:#5ef7a2; --red:#ff6c84;
   --orange:#ffb080; --blue:#7a88ff; --violet:#9aa8ff; --black:#202533;
-  --radius:18px
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -184,7 +183,6 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
       </div>
       <div class="chartWrap">
         <canvas id="chart"></canvas>
-        <!-- dynamic endpoints (badges) -->
         <div id="bd_gpt5"  class="badge-dot"><img src="assets/gpt5.svg"    alt=""></div>
         <div id="bd_claude"class="badge-dot"><img src="assets/claude.png" alt=""></div>
         <div id="bd_deepseek"class="badge-dot"><img src="assets/deepseek.png" alt=""></div>
@@ -216,13 +214,27 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 <script>
 /* ----------------- Helpers & persistence ----------------- */
 const STORE_KEY = 'ha_live_v3';
+
+function isValidState(st){
+  try{
+    if(!st || typeof st!=='object') return false;
+    if(!st.series || !st.agents) return false;
+    for(const k of ['gpt5','claude','deepseek','grok']){
+      if(!Array.isArray(st.series[k]) || st.series[k].length<2) return false;
+      if(!isFinite(st.agents[k])) return false;
+    }
+    return true;
+  }catch(e){ return false; }
+}
 function loadState(){
-  try{ const j = JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); return j && j.series ? j : null; }
+  try{ const j = JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); return isValidState(j)? j : null; }
   catch(e){ return null; }
 }
 function saveState(){
-  const payload = {series, agents, trades, chats, lastTs: Date.now()};
-  localStorage.setItem(STORE_KEY, JSON.stringify(payload));
+  try{
+    const payload = {series, agents, trades, chats, lastTs: Date.now()};
+    localStorage.setItem(STORE_KEY, JSON.stringify(payload));
+  }catch(e){}
 }
 
 /* ----------------- Prices (real) from CoinGecko ----------------- */
@@ -254,37 +266,57 @@ fetchPrices(); setInterval(fetchPrices, 60000);
 /* ----------------- Agents / Series ----------------- */
 const names = ['gpt5','claude','deepseek','grok'];
 const colors = { gpt5:'#FFFFFF', claude:'#ffb080', deepseek:'#7a88ff', grok:'#9aa8ff' };
-let agents = { gpt5:3.4214, claude:2.3549, deepseek:1.3563, grok:1.3107 }; // in SOL-equivalent “equity”
-let series;
-let trades=[];
-let chats=[];
+let agents = { gpt5:3.4214, claude:2.3549, deepseek:1.3563, grok:1.3107 }; // “equity” in SOL
+let series, trades=[], chats=[];
 
-/* restore persisted state (so chart doesn't reset on refresh) */
-const restored = loadState();
-if(restored){
-  series = restored.series;
-  agents = restored.agents;
-  trades = restored.trades||[];
-  chats = restored.chats||[];
-  // fast-forward based on elapsed time (simulate ticks while the page was closed)
-  const elapsedSec = Math.min(3600, Math.floor((Date.now()-restored.lastTs)/1000));
-  for(let i=0;i<elapsedSec;i++) tick(false);
-}else{
-  // make initial smooth series
+function seedSeries(){
   series = {};
   names.forEach(k=>{
     const base = 1000 + (k==='gpt5'?650:(k==='claude'?0:(k==='deepseek'?-650:-700)));
     series[k] = Array.from({length:200}, (_,i)=> base + Math.sin(i/6)*(k==='gpt5'?6:3) + i*(k==='gpt5'?2.2:(k==='claude'?1.1:(k==='deepseek'?-1.8:-2.0))));
   });
+  // also seed a couple of items so panel tidak kosong
+  if(trades.length===0){
+    trades = [
+      {model:'Claude',symbol:'SOLUSDT',price:158.12,qty:.23,notional:36,side:'SELL',conf:54,slip:21,lat:182,live:true,time:new Date().toLocaleTimeString().slice(0,8)},
+      {model:'GPT-5',symbol:'ETHUSDT',price:2520,qty:.05,notional:126,side:'BUY',conf:71,slip:11,lat:188,live:true,time:new Date().toLocaleTimeString().slice(0,8)}
+    ];
+  }
+  if(chats.length===0){
+    chats = [
+      {model:'Claude',tag:'AGGR',time:new Date().toLocaleTimeString().slice(0,8),text:'Micro-structure shift on BTCUSDT. Tight stop, quick scalp.',action:'SELL 0.017 BTCUSDT @ market'}
+    ];
+  }
+}
+
+/* restore persisted state safely */
+const restored = loadState();
+if(restored){
+  series = restored.series; agents = restored.agents;
+  trades = restored.trades||[]; chats = restored.chats||[];
+  const elapsedSec = Math.min(3600, Math.floor((Date.now()- (restored.lastTs||Date.now()))/1000));
+  if(!isValidState(restored)) seedSeries();
+  // fast-forward sedikit supaya terasa “berjalan”
+  for(let i=0;i<elapsedSec;i++) tick(false);
+}else{
+  seedSeries();
 }
 
 /* ----------------- Canvas Chart ----------------- */
 const cv=document.getElementById('chart'); const ctx=cv.getContext('2d');
 function resize(){ cv.width=cv.clientWidth*devicePixelRatio; cv.height=cv.clientHeight*devicePixelRatio; draw(); }
-window.addEventListener('resize',resize); resize();
+window.addEventListener('resize',resize); window.addEventListener('load',resize); resize();
+
+function ensureSeriesReady(){
+  let ok=true;
+  for(const k of names){ if(!Array.isArray(series[k]) || series[k].length<2) { ok=false; break; } }
+  if(!ok){ seedSeries(); saveState(); }
+}
 
 function draw(){
+  ensureSeriesReady();
   const w=cv.width,h=cv.height,p=44*devicePixelRatio;
+  if(w===0||h===0) return;
   ctx.clearRect(0,0,w,h);
   // grid
   ctx.globalAlpha=.12; ctx.strokeStyle='#cfd2db'; ctx.lineWidth=1;
@@ -295,12 +327,11 @@ function draw(){
   const max=Math.max(...flat), min=Math.min(...flat);
   const y=v=> h-p - (v-min)/(max-min)*(h-2*p);
   const x=(i,N)=> p + i/(N-1)*(w-2*p);
-  // lines
+  // lines + endpoint badges
   names.forEach(k=>{
     const s=series[k]; ctx.beginPath(); ctx.lineWidth=3*devicePixelRatio; ctx.strokeStyle=colors[k];
-    s.forEach((v,i)=>{ const xx=x(i,s.length), yy=y(v); if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy); });
+    for(let i=0;i<s.length;i++){ const xx=x(i,s.length), yy=y(s[i]); if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy); }
     ctx.stroke();
-    // endpoint badge position
     const lx=x(s.length-1,s.length), ly=y(s[s.length-1]);
     const bd=document.getElementById('bd_'+k); bd.style.left=(lx/devicePixelRatio)+'px'; bd.style.top=(ly/devicePixelRatio)+'px';
   });
@@ -352,7 +383,6 @@ renderSide();
 
 /* ----------------- Trade generator & chart influence ----------------- */
 function nowTime(){ return new Date().toLocaleTimeString().slice(0,8); }
-
 const PAIRS=[
   {sym:'SOLUSDT',px:()=>CURRENT_PRICES.SOL||FALLBACK.SOL,unit:[0.15,1.2]},
   {sym:'BTCUSDT',px:()=>CURRENT_PRICES.BTC||FALLBACK.BTC,unit:[0.001,0.008]},
@@ -360,14 +390,13 @@ const PAIRS=[
   {sym:'BNBUSDT',px:()=>CURRENT_PRICES.BNB||FALLBACK.BNB,unit:[0.02,0.25]}
 ];
 const MODELS=['GPT-5','Claude','DeepSeek','Grok'];
-
 function rand(a,b){ return a + Math.random()*(b-a); }
 function pick(arr){ return arr[Math.random()*arr.length|0]; }
 
 function pushTrade(){
   const m = pick(MODELS), modelId = m.replace(/[^\w]/g,'').toLowerCase();
   const p = pick(PAIRS); const px=p.px(); const qty = rand(p.unit[0],p.unit[1]);
-  const notional = Math.round(px*qty); // USD value ~ lebih realistis
+  const notional = Math.max(5, Math.round(px*qty)); // USD value realistis
   const side = Math.random() < 0.52 ? 'BUY':'SELL';
   const conf = 45 + (Math.random()*35|0);
   const slip = 6 + (Math.random()*20|0);
@@ -376,12 +405,10 @@ function pushTrade(){
   const t = {model:m, symbol:p.sym, price:px, qty:+qty.toFixed(4), notional, side, conf, slip, lat, live:true, time:nowTime()};
   trades.unshift(t); if(trades.length>60) trades.pop();
 
-  // Influence chart & agent equity:
   const impact = (notional/10000) * (side==='BUY'? 1 : -1); // skala konservatif
   agents[modelId] = Math.max(0.05, agents[modelId] + impact/ (modelId==='gpt5'?1.2:(modelId==='claude'?1.6:(modelId==='deepseek'?1.8:2.0))));
   nudgeSeries(modelId, impact);
 
-  // Chat snippet (ringkas)
   if(Math.random()<0.5){
     chats.unshift({
       model:m, tag:(modelId==='claude'?'AGGR':modelId==='gpt5'?'REACT':modelId==='deepseek'?'BAL':'DEF'),
@@ -396,12 +423,12 @@ function pushTrade(){
 }
 setInterval(pushTrade, 4200);
 
-/* Chart passive drift tick (kehalusan) */
+/* Chart passive drift tick */
 function tick(saveIt=true){
+  ensureSeriesReady();
   names.forEach(k=>{
     const arr=series[k];
     const last=arr[arr.length-1];
-    // small drift different per model
     const drift = (k==='gpt5'?0.9:(k==='claude'?0.45:(k==='deepseek'?-0.6:-0.7)));
     const noise = (Math.random()-0.5)*3.2;
     const next = last + drift + noise;
@@ -413,23 +440,13 @@ function tick(saveIt=true){
 setInterval(()=>tick(true), 1800);
 
 function nudgeSeries(modelId, impact){
-  // apply bump to its line (endpoint)
+  ensureSeriesReady();
   const arr = series[modelId];
-  arr[arr.length-1] = arr[arr.length-1] + impact*8; // terasa saat trade
+  arr[arr.length-1] = arr[arr.length-1] + impact*8;
 }
-
-/* small UI jitter for top cards */
-function jitterCard(id){
-  const v=document.getElementById('v_'+id), p=document.getElementById('p_'+id);
-  let x=parseFloat(v.textContent); const ch=(Math.random()-0.5)*0.02; x=Math.max(0,x+ch); v.textContent=x.toFixed(4);
-  const pct=(Math.random()-0.5)*0.6; const up=pct>=0; p.classList.toggle('up',up); p.classList.toggle('down',!up);
-  p.textContent=(up?'+':'')+pct.toFixed(2)+'%';
-}
-setInterval(()=>{ ['gpt5','claude','deepseek','grok'].forEach(jitterCard); }, 2600);
 
 /* initial render */
 renderSide(); draw(); saveState();
-
 </script>
 </body>
 </html>
