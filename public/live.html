@@ -90,7 +90,7 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
 .ticker .item{display:flex; gap:8px; align-items:center; white-space:nowrap}
 .dot{width:6px; height:6px; border-radius:50%; background:#7a88ff; display:inline-block}
 
-/* Neon utilities (cards/panel hover) */
+/* Hovers */
 .neon-hover{transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
 .neon-hover:hover{transform:translateY(-3px)}
 .neon-yellow:hover{box-shadow:0 0 32px rgba(255,209,102,.45); border-color:#5a4a2a}
@@ -106,7 +106,7 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
 </head>
 <body>
 
-<!-- Inline sprite references -->
+<!-- Inline sprite refs -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
   <symbol id="ic-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -139,7 +139,7 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
 
 <main class="container">
 
-  <!-- Top agent cards -->
+  <!-- Cards -->
   <section class="grid-cards">
     <article class="agent-card neon-hover neon-yellow" data-model="gpt5">
       <div class="agent-head">
@@ -257,19 +257,11 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
   </div>
 </main>
 
-<!-- ===================== CHART (glow on hover) ====================== -->
+<!-- ===================== CHART (glow + label & icon always on top) ====================== -->
 <script>
-/* ===== Glow Line Chart v2 (hover-aware) =====
-   - Hover/touch dekat garis -> garis aktif bersinar
-   - Warna glow:
-     0 GPT-5: putih, 1 Claude: oranye, 2 DeepSeek: biru, 3 Grok: abu-hitam terang
-   - Kompatibel dengan window.replaceSeries(newData)
-================================================ */
-
 const cv = document.getElementById('chart');
 const ctx = cv.getContext('2d');
 
-// ----- sizing (pakai px CSS + HiDPI tajam)
 function sizeCanvas() {
   const dpr = window.devicePixelRatio || 1;
   cv.width  = cv.clientWidth  * dpr;
@@ -277,14 +269,21 @@ function sizeCanvas() {
   ctx.setTransform(dpr,0,0,dpr,0,0);
 }
 sizeCanvas();
-window.addEventListener('resize', () => { sizeCanvas(); draw(); });
+window.addEventListener('resize', () => { sizeCanvas(); cachePaths=null; draw(); });
 
-// ----- colors
+// colors
 const lineColors = ['#FFFFFF','#ffb080','#7a88ff','#8b8f98'];
 const glowColors = ['#FFFFFF','#ff7a00','#5a78ff','#cfd3db'];
-const dimAlpha   = 0.22;
 
-// ----- demo fallback sampai di-replace backend
+// preload icons
+const logos = [
+  Object.assign(new Image(), {src:'assets/gpt5.svg'}),
+  Object.assign(new Image(), {src:'assets/claude.png'}),
+  Object.assign(new Image(), {src:'assets/deepseek.png'}),
+  Object.assign(new Image(), {src:'assets/grok.png'}),
+];
+
+// demo data fallback
 function seedSeries(slope, noise=3, len=240, base=500){
   let v = base; const out=[];
   for (let i=0;i<len;i++){
@@ -294,98 +293,84 @@ function seedSeries(slope, noise=3, len=240, base=500){
   return out;
 }
 let series = [
-  seedSeries( 3.2, 6, 240, 900),  // GPT-5
-  seedSeries( 1.4, 5, 240, 520),  // Claude
-  seedSeries(-2.0, 3, 240, 320),  // DeepSeek
-  seedSeries(-2.4, 2, 240, 300)   // Grok
+  seedSeries( 3.2, 6, 240, 900),
+  seedSeries( 1.4, 5, 240, 520),
+  seedSeries(-2.0, 3, 240, 320),
+  seedSeries(-2.4, 2, 240, 300)
 ];
 
-// Integrasi: backend bisa memanggil ini
+// backend hook
 window.replaceSeries = function(s){
   const take = (arr)=> (arr||[]).map(p=> +p.v).filter(Number.isFinite);
   const next = [ take(s.gpt5), take(s.claude), take(s.deepseek), take(s.grok) ];
-  if (next.every(a=>a && a.length>3)) { series = next; }
-  cachePaths = null;
-  draw();
+  if (next.every(a=>a && a.length>3)) { series = next; cachePaths=null; draw(); }
 };
 
-// ----- helpers
-function extent(arr){ let mn=+Infinity, mx=-Infinity; arr.forEach(v=>{mn=Math.min(mn,v); mx=Math.max(mx,v)}); return [mn,mx]; }
+// helpers
 function polyMinMax(list){
   let mn=+Infinity, mx=-Infinity;
   list.forEach(a=> a.forEach(v=>{ mn=Math.min(mn,v); mx=Math.max(mx,v); }));
   return [mn,mx];
 }
 function lerp(a,b,t){ return a + (b-a)*t; }
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
 
-// hit-test
-let active = -1;        // index series aktif
-let cachePaths = null;  // cache jalur px
-
+// layout cache
+let cachePaths=null;
 function buildPaths(){
-  const pad = 36, W = cv.clientWidth, H = 420;
+  const pad = 36, W=cv.clientWidth, H=420;
   const [vmin,vmax] = polyMinMax(series);
   const range = Math.max(1, vmax - vmin);
   const X = (i,n)=> lerp(pad, W-pad, i/(n-1));
   const Y = (v)=> lerp(H-pad, pad, (v - vmin)/range);
   const paths = series.map(s=>{
-    const n = s.length, pts = new Array(n);
-    for(let i=0;i<n;i++) pts[i] = [ X(i,n), Y(s[i]) ];
+    const n=s.length, pts=new Array(n);
+    for(let i=0;i<n;i++) pts[i]=[X(i,n),Y(s[i])];
     return pts;
   });
-  return { paths, pad, W, H };
+  return {paths,pad,W,H};
 }
+
+// hit-test hover
+let active=-1;
 function distToSeg(px, py, x1,y1, x2,y2){
-  const vx = x2-x1, vy = y2-y1, wx = px-x1, wy = py-y1;
+  const vx=x2-x1, vy=y2-y1, wx=px-x1, wy=py-y1;
   const c1 = vx*wx + vy*wy; if (c1<=0) return Math.hypot(px-x1, py-y1);
   const c2 = vx*vx + vy*vy; if (c2<=c1) return Math.hypot(px-x2, py-y2);
-  const t = c1/c2; const projx = x1 + t*vx, projy = y1 + t*vy;
-  return Math.hypot(px-projx, py-projy);
+  const t = c1/c2; const projx=x1+t*vx, projy=y1+t*vy; return Math.hypot(px-projx, py-projy);
 }
 function pickSeries(mx,my, paths){
-  const TH = 12; let best = {i:-1,d:1e9};
+  const TH=12; let best={i:-1,d:1e9};
   paths.forEach((pts, si)=>{
-    for (let k=1;k<pts.length;k++){
+    for(let k=1;k<pts.length;k++){
       const [x1,y1]=pts[k-1], [x2,y2]=pts[k];
-      const d = distToSeg(mx,my,x1,y1,x2,y2);
-      if (d<best.d) best={i:si,d};
+      const d=distToSeg(mx,my,x1,y1,x2,y2);
+      if(d<best.d) best={i:si,d};
     }
   });
   return (best.d<=TH)?best.i:-1;
 }
 
+// rounded rect
+function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+
 // draw
-function roundRect(c, x,y,w,h,r){
-  c.beginPath();
-  c.moveTo(x+r,y);
-  c.arcTo(x+w,y,   x+w,y+h, r);
-  c.arcTo(x+w,y+h, x,  y+h, r);
-  c.arcTo(x,  y+h, x,  y,   r);
-  c.arcTo(x,  y,   x+w,y,   r);
-  c.closePath();
-}
 function draw(){
-  if (!cachePaths) cachePaths = buildPaths();
-  const {paths, pad, W, H} = cachePaths;
+  if(!cachePaths) cachePaths = buildPaths();
+  const {paths,pad,W,H} = cachePaths;
 
   ctx.clearRect(0,0,W,H);
 
-  // grid Y
-  ctx.save();
-  ctx.globalAlpha=.12; ctx.strokeStyle='#cfd2db';
-  for (let y=0;y<6;y++){
-    const yy = pad + (H-2*pad)*y/5;
-    ctx.beginPath(); ctx.moveTo(pad,yy); ctx.lineTo(W-pad,yy); ctx.stroke();
-  }
+  // grid
+  ctx.save(); ctx.globalAlpha=.12; ctx.strokeStyle='#cfd2db';
+  for(let y=0;y<6;y++){ const yy=pad+(H-2*pad)*y/5; ctx.beginPath(); ctx.moveTo(pad,yy); ctx.lineTo(W-pad,yy); ctx.stroke(); }
   ctx.restore();
 
-  // lines
+  // 1) draw lines (with glow, dim others)
   paths.forEach((pts, si)=>{
     const isActive = (active===-1) ? true : (active===si);
-    ctx.globalAlpha = isActive ? 1 : 0.22;
-
-    // glow underlay
     ctx.save();
+    ctx.globalAlpha = isActive ? 1 : 0.22;
     ctx.lineJoin='round'; ctx.lineCap='round';
     ctx.lineWidth = isActive ? 6 : 3;
     ctx.shadowColor = isActive ? glowColors[si] : 'transparent';
@@ -395,61 +380,97 @@ function draw(){
     pts.forEach(([x,y],k)=> (k?ctx.lineTo(x,y):ctx.moveTo(x,y)));
     ctx.stroke();
     ctx.restore();
-
-    // price label
-    const [lx,ly] = pts[pts.length-1];
-    const price = series[si][series[si].length-1];
-    const label = '$' + Math.round(price);
-    ctx.save();
-    ctx.translate(lx+10, ly-12);
-    const w = Math.max(52, ctx.measureText(label).width + 20), h = 24;
-    ctx.fillStyle='rgba(11,12,16,0.95)'; ctx.strokeStyle = isActive ? '#fff' : '#8d93a7'; ctx.lineWidth=2;
-    roundRect(ctx,0,0,w,h,12); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.arc(12,h/2,6,0,Math.PI*2); ctx.fillStyle = isActive?glowColors[si]:'#6b7280'; ctx.fill();
-    ctx.fillStyle='#fff'; ctx.font='12px Inter, system-ui'; ctx.fillText(label,22,16);
-    ctx.restore();
   });
 
-  ctx.globalAlpha=1;
+  // 2) labels & icons ON TOP (with punched background so never covered)
+  paths.forEach((pts, si)=>{
+    const [lx0,ly0] = pts[pts.length-1];
+    const labelText = '$' + Math.round(series[si][series[si].length-1]);
+
+    // compute clamped positions (avoid keluar frame)
+    const padR = 10;
+    const lx = clamp(lx0 + 12,  pad, W - pad - 90);
+    const ly = clamp(ly0 - 12,  pad, H - pad - 24);
+
+    // punch-hole agar glow tidak nutup teks
+    ctx.save();
+    ctx.globalCompositeOperation='destination-out';
+    rr(ctx, lx-2, ly-2, 90, 28, 12); ctx.fill();
+    ctx.restore();
+
+    // badge + text
+    ctx.save();
+    ctx.fillStyle='rgba(11,12,16,0.96)'; ctx.strokeStyle='#fff'; ctx.lineWidth=2;
+    rr(ctx, lx, ly, 86, 24, 12); ctx.fill(); ctx.stroke();
+    // left color dot
+    ctx.beginPath(); ctx.arc(lx+12, ly+12, 6, 0, Math.PI*2); ctx.fillStyle = glowColors[si]; ctx.fill();
+    // text
+    ctx.fillStyle='#fff'; ctx.font='12px Inter, system-ui'; ctx.fillText(labelText, lx+24, ly+16);
+    ctx.restore();
+
+    // ICON (separate, with glow ring)
+    const r = 14;
+    const ix = clamp(lx0 + 6, pad + r, W - pad - r);
+    const iy = clamp(ly0, pad + r, H - pad - r);
+
+    ctx.save();
+    // punch-hole kecil
+    ctx.globalCompositeOperation='destination-out';
+    ctx.beginPath(); ctx.arc(ix,iy, r+2, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    // glow ring
+    ctx.shadowColor = glowColors[si]; ctx.shadowBlur = 18;
+    ctx.beginPath(); ctx.arc(ix,iy, r, 0, Math.PI*2);
+    ctx.fillStyle = '#111625'; ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth=2; ctx.strokeStyle = '#9aa0b1'; ctx.stroke();
+    // logo
+    const img = logos[si]; const s = 16;
+    if (img && img.complete) ctx.drawImage(img, ix - s/2, iy - s/2, s, s);
+    ctx.restore();
+  });
 }
 
-// interaksi
+// interactions
 cv.addEventListener('mousemove', (e)=>{
-  const r = cv.getBoundingClientRect(), mx = e.clientX-r.left, my = e.clientY-r.top;
-  if (!cachePaths) cachePaths=buildPaths();
-  const p = pickSeries(mx,my, cachePaths.paths);
-  if (p!==active){ active=p; draw(); }
+  if(!cachePaths) cachePaths=buildPaths();
+  const r=cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  const p=pickSeries(mx,my, cachePaths.paths);
+  if(p!==active){ active=p; draw(); }
 });
 cv.addEventListener('mouseleave', ()=>{ active=-1; draw(); });
 cv.addEventListener('touchmove', (e)=>{
+  if(!cachePaths) cachePaths=buildPaths();
   const r=cv.getBoundingClientRect(), t=e.touches[0], mx=t.clientX-r.left, my=t.clientY-r.top;
-  if (!cachePaths) cachePaths=buildPaths();
   const p=pickSeries(mx,my, cachePaths.paths);
-  if (p!==active){ active=p; draw(); }
+  if(p!==active){ active=p; draw(); }
 },{passive:true});
 cv.addEventListener('touchend', ()=>{ active=-1; draw(); });
 
-// nudge kecil agar terasa hidup saat idle
+// idle micro-nudge biar hidup
 setInterval(()=>{
   for (let s of series){ s[s.length-1] = Math.max(1, s[s.length-1] + (Math.random()-0.5)*0.9); }
   cachePaths=null; draw();
 }, 1500);
 
-// first paint
+// first paint (after icons load also re-draw)
+logos.forEach(img=> img.addEventListener('load', draw));
 draw();
 </script>
 
-<!-- ===================== RIGHT CONSOLE (tabs) + DEMO ====================== -->
+<!-- ===================== RIGHT CONSOLE (tabs) + DEMO FEED ====================== -->
 <script>
 const list = document.getElementById('list');
 const tabs = document.querySelectorAll('.tab');
 
 const samples = {
   trades: [
-    {m:'GPT5',     pair:'BNBUSDT', side:'BUY',  qty:'0.2135', now:'$573.26', px:'$571.80', slip:'27 bps', lat:'155ms', conf:'53%'},
-    {m:'DEEPSEEK', pair:'BTCUSDT', side:'SELL', qty:'0.0097', now:'$42,131', px:'$42,155', slip:'21 bps', lat:'223ms', conf:'52%'},
-    {m:'DEEPSEEK', pair:'BTCUSDT', side:'BUY',  qty:'0.0108', now:'$33,528', px:'$33,510', slip:'14 bps', lat:'268ms', conf:'66%'},
-    {m:'CLAUDE',   pair:'BNBUSDT', side:'SELL', qty:'0.3055', now:'$1949.26', px:'$1951.20', slip:'15 bps', lat:'223ms', conf:'58%'}
+    {m:'DeepSeek', pair:'BTCUSDT', side:'SELL', qty:'0.0097', now:'$29,572.78', slip:'15 bps', lat:'248ms', conf:'71%'},
+    {m:'DeepSeek', pair:'SOLUSDT', side:'BUY',  qty:'0.3150', now:'$37,496.61', slip:'6 bps',  lat:'248ms', conf:'46%'},
+    {m:'DeepSeek', pair:'BTCUSDT', side:'BUY',  qty:'0.0102', now:'$36,754.25', slip:'6 bps',  lat:'250ms', conf:'46%'},
+    {m:'DeepSeek', pair:'ETHUSDT', side:'BUY',  qty:'0.3085', now:'$12,528.20', slip:'13 bps', lat:'180ms', conf:'70%'}
   ],
   positions: [
     {m:'Market Prices', BTC:'$43,250.50', ETH:'$2,280.75', SOL:'$98.42', BNB:'$573.12'},
@@ -459,9 +480,9 @@ const samples = {
     {m:'Grok', bankroll:'0.5332 BNB', win:'45.0%', maxdd:'18.9%'}
   ],
   chat: [
-    {m:'Claude', tag:'DEFENSIVE', txt:'Defensive long on ETHUSDT. RSI 28, price $2282.52. Low leverage, patient approach. 67% confidence in floor holding.', action:'BUY 0.1712 ETHUSDT · 8 bps slip · -0.0215 BNB'},
-    {m:'DeepSeek', tag:'REACTIVE', txt:'SOLUSDT volatility event incoming. Positioning long at $98.65. Asymmetric risk/reward, 62% conviction. Sizing up on this setup.', action:'BUY 0.0957 SOLUSDT · 23 bps slip · -0.0090 BNB'},
-    {m:'Grok', tag:'AGGRESSIVE', txt:'Micro-structure shift on BTCUSDT. Sellers stepping in at $43207.59. Tight stop-loss, looking for rapid drop. 57% setup.', action:'SELL 0.0503 BTCUSDT · 19 bps slip · -0.0052 BNB'}
+    {m:'Claude',   tag:'DEFENSIVE', txt:'Defensive long on ETHUSDT. RSI 28, price $2282.52. Low leverage, patient approach. 67% confidence in floor holding.', action:'BUY 0.1712 ETHUSDT · 8 bps slip · -0.0215 BNB'},
+    {m:'DeepSeek', tag:'REACTIVE',  txt:'SOLUSDT volatility event incoming. Positioning long at $98.65. Sizing up on this setup.', action:'BUY 0.0957 SOLUSDT · 23 bps slip · -0.0090 BNB'},
+    {m:'Grok',     tag:'AGGRESSIVE',txt:'Micro-structure shift on BTCUSDT. Sellers stepping in at $43207.59. 57% setup.', action:'SELL 0.0503 BTCUSDT · 19 bps slip · -0.0052 BNB'}
   ],
   readme: [
     {title:'HysteriaArena Rules', body:'A live experiment of autonomous trading agents competing under different risk temperaments.'},
@@ -517,7 +538,7 @@ tabs.forEach(t=> t.addEventListener('click', ()=>{
 }));
 renderTab('trades');
 
-// Random appender supaya terasa live (tanpa backend)
+// feel-live appender (tanpa backend)
 function pushTrade(){
   const sides=['BUY','SELL']; const syms=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT'];
   const side=sides[Math.random()*2|0], sym=syms[Math.random()*syms.length|0];
@@ -543,13 +564,10 @@ setInterval(pushTrade, 4800);
 setInterval(pushChat, 8200);
 </script>
 
-<!-- ===================== TOP CARDS SMALL JITTER + BACKEND HOOK ====================== -->
+<!-- ===================== TOP CARDS JITTER + BACKEND HOOK ====================== -->
 <script>
 (function(){
   const CFG = window.HA_CONFIG || { DEMO_MODE:true };
-  const $ = sel => document.querySelector(sel);
-
-  // update pill & percent di kartu
   function setTop(model, bankroll, pct, win, slip){
     const vId = {gpt5:'gptVal', claude:'clVal', deepseek:'dsVal', grok:'grVal'}[model];
     const pId = {gpt5:'gptPct', claude:'clPct', deepseek:'dsPct', grok:'grPct'}[model];
@@ -565,8 +583,6 @@ setInterval(pushChat, 8200);
       if (pills[2]) pills[2].textContent = (slip ?? +pills[2].textContent).toFixed ? (slip).toFixed(1) : pills[2].textContent;
     }
   }
-
-  // jitter kecil biar hidup
   function jitter(idVal, idPct){
     const v = document.getElementById(idVal); const p = document.getElementById(idPct);
     let x = parseFloat(v.textContent);
@@ -578,7 +594,6 @@ setInterval(pushChat, 8200);
   }
   setInterval(()=>{ jitter('gptVal','gptPct'); jitter('clVal','clPct'); jitter('dsVal','dsPct'); jitter('grVal','grPct'); }, 2600);
 
-  // Polling contoh (aktif kalau DEMO_MODE=false)
   async function pollSummary(){
     if (!CFG.API_BASE) return;
     try{
@@ -586,7 +601,7 @@ setInterval(pushChat, 8200);
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       (data.agents || []).forEach(a => setTop(a.id, a.bankroll, a.pct, {trades:a.trades, rate:a.win}, a.slip));
-    }catch(e){ /* ignore */ }
+    }catch(e){}
   }
   async function pollSeries(){
     if (!CFG.API_BASE) return;
@@ -595,7 +610,7 @@ setInterval(pushChat, 8200);
       if (!res.ok) throw new Error(res.statusText);
       const data = await res.json();
       if (data && data.series && window.replaceSeries) window.replaceSeries(data.series);
-    }catch(e){ /* ignore */ }
+    }catch(e){}
   }
   function startWS(){
     if (!CFG.WS_URL) return;
@@ -613,8 +628,8 @@ setInterval(pushChat, 8200);
     }catch(e){}
   }
 
-  if (!CFG.DEMO_MODE){
-    pollSummary(); pollSeries(); setInterval(pollSummary, CFG.POLL_MS||8000);
+  if (!(window.HA_CONFIG||{}).DEMO_MODE){
+    pollSummary(); pollSeries(); setInterval(pollSummary, (window.HA_CONFIG||{}).POLL_MS||8000);
     startWS();
   }
 })();
