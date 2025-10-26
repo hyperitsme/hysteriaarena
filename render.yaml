@@ -2,7 +2,7 @@ services:
   - type: web
     name: hysteriaarena
     env: node
-    plan: free
-    buildCommand: "npm ci"
+    buildCommand: ""
     startCommand: "node server.js"
+    plan: starter
     autoDeploy: true
