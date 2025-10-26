@@ -9,7 +9,7 @@
 :root{
   --bg:#0b0e14; --panel:#0f1424; --panel2:#0c1020; --border:#222a44;
   --text:#ecedef; --muted:#bfc6d3; --green:#5ef7a2; --red:#ff6c84;
-  --orange:#ffb080; --blue:#7a88ff; --violet:#9aa8ff; --black:#202533;
+  --orange:#ffb080; --blue:#7a88ff; --violet:#9aa8ff;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -57,7 +57,7 @@ header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(10px
 
 /* chart */
 .chartWrap{position:relative;height:440px}
-canvas{position:absolute;inset:0;width:100%;height:100%}
+canvas{position:absolute;inset:0;width:100%;height:100%;background:transparent}
 .badge-dot{position:absolute;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;
   background:#0b0d16;border:2px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(255,255,255,.25)}
 .badge-dot img{width:16px;height:16px}
@@ -94,7 +94,6 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
 <main class="container">
   <!-- top cards -->
   <section class="grid">
-    <!-- GPT-5 -->
     <article class="card" data-model="gpt5">
       <div class="row">
         <div class="ttl">
@@ -112,7 +111,6 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
       </div>
     </article>
 
-    <!-- Claude -->
     <article class="card" data-model="claude">
       <div class="row">
         <div class="ttl">
@@ -130,7 +128,6 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
       </div>
     </article>
 
-    <!-- DeepSeek -->
     <article class="card" data-model="deepseek">
       <div class="row">
         <div class="ttl">
@@ -148,7 +145,6 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
       </div>
     </article>
 
-    <!-- Grok -->
     <article class="card" data-model="grok">
       <div class="row">
         <div class="ttl">
@@ -201,7 +197,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
     </aside>
   </section>
 
-  <!-- footer ticker (real prices) -->
+  <!-- footer ticker -->
   <div class="ticker">
     <span class="ti"><span class="dot"></span>SOL <b id="pxSOL">$—</b></span>
     <span class="ti"><span class="dot"></span>BTC <b id="pxBTC">$—</b></span>
@@ -210,39 +206,26 @@ canvas{position:absolute;inset:0;width:100%;height:100%}
   </div>
 </main>
 
-<!-- ========================= SCRIPTS ========================= -->
 <script>
-/* ----------------- Helpers & persistence ----------------- */
-const STORE_KEY = 'ha_live_v3';
+/* =================== PERSISTENCE & GUARDS =================== */
+const STORE_KEY='ha_live_v4';
+function safeParse(v){ try{return JSON.parse(v)}catch(e){return null} }
+function clearBadStorage(){ localStorage.removeItem(STORE_KEY); }
 
-function isValidState(st){
-  try{
-    if(!st || typeof st!=='object') return false;
-    if(!st.series || !st.agents) return false;
-    for(const k of ['gpt5','claude','deepseek','grok']){
-      if(!Array.isArray(st.series[k]) || st.series[k].length<2) return false;
-      if(!isFinite(st.agents[k])) return false;
-    }
-    return true;
-  }catch(e){ return false; }
-}
-function loadState(){
-  try{ const j = JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); return isValidState(j)? j : null; }
-  catch(e){ return null; }
-}
-function saveState(){
-  try{
-    const payload = {series, agents, trades, chats, lastTs: Date.now()};
-    localStorage.setItem(STORE_KEY, JSON.stringify(payload));
-  }catch(e){}
+function validState(st){
+  if(!st||typeof st!=='object') return false;
+  if(!st.series||!st.agents) return false;
+  for(const k of ['gpt5','claude','deepseek','grok']){
+    if(!Array.isArray(st.series[k])||st.series[k].length<2) return false;
+    if(!isFinite(st.agents[k])) return false;
+  }
+  return true;
 }
 
-/* ----------------- Prices (real) from CoinGecko ----------------- */
-let CURRENT_PRICES = { SOL:0, BTC:0, ETH:0, BNB:0 };
-const FALLBACK = { SOL:158.12, BTC:68420, ETH:2520, BNB:598.30 };
-const dSOL=document.getElementById('pxSOL'), dBTC=document.getElementById('pxBTC'),
-      dETH=document.getElementById('pxETH'), dBNB=document.getElementById('pxBNB');
-
+/* =================== REAL PRICES =================== */
+let CURRENT_PRICES={SOL:0,BTC:0,ETH:0,BNB:0};
+const FALLBACK={SOL:158.12,BTC:68420,ETH:2520,BNB:598.30};
+const dSOL=pxSOL,dBTC=pxBTC,dETH=pxETH,dBNB=pxBNB;
 function setTicker(p){
   CURRENT_PRICES=p;
   dSOL.textContent='$'+p.SOL.toLocaleString(undefined,{maximumFractionDigits:2});
@@ -253,81 +236,81 @@ function setTicker(p){
 async function fetchPrices(){
   try{
     const url='https://api.coingecko.com/api/v3/simple/price?ids=solana,bitcoin,ethereum,binancecoin&vs_currencies=usd';
-    const res=await fetch(url,{cache:'no-store'});
-    if(!res.ok) throw new Error(res.statusText);
-    const j=await res.json();
+    const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw 0;
+    const j=await r.json();
     const p={SOL:+j.solana.usd,BTC:+j.bitcoin.usd,ETH:+j.ethereum.usd,BNB:+j.binancecoin.usd};
-    if([p.SOL,p.BTC,p.ETH,p.BNB].some(v=>!isFinite(v)||v<=0)) throw 0;
+    if(Object.values(p).some(v=>!isFinite(v)||v<=0)) throw 0;
     setTicker(p);
   }catch(e){ if(!CURRENT_PRICES.SOL) setTicker(FALLBACK); }
 }
-fetchPrices(); setInterval(fetchPrices, 60000);
+fetchPrices(); setInterval(fetchPrices,60000);
 
-/* ----------------- Agents / Series ----------------- */
-const names = ['gpt5','claude','deepseek','grok'];
-const colors = { gpt5:'#FFFFFF', claude:'#ffb080', deepseek:'#7a88ff', grok:'#9aa8ff' };
-let agents = { gpt5:3.4214, claude:2.3549, deepseek:1.3563, grok:1.3107 }; // “equity” in SOL
-let series, trades=[], chats=[];
+/* =================== MODEL STATE =================== */
+const names=['gpt5','claude','deepseek','grok'];
+const colors={gpt5:'#FFFFFF',claude:'#ffb080',deepseek:'#7a88ff',grok:'#9aa8ff'};
+let agents={gpt5:3.4214,claude:2.3549,deepseek:1.3563,grok:1.3107};
+let series={}, trades=[], chats=[];
 
-function seedSeries(){
-  series = {};
+function seed(){
+  series={};
   names.forEach(k=>{
-    const base = 1000 + (k==='gpt5'?650:(k==='claude'?0:(k==='deepseek'?-650:-700)));
-    series[k] = Array.from({length:200}, (_,i)=> base + Math.sin(i/6)*(k==='gpt5'?6:3) + i*(k==='gpt5'?2.2:(k==='claude'?1.1:(k==='deepseek'?-1.8:-2.0))));
+    const base=1000+(k==='gpt5'?650:(k==='claude'?0:(k==='deepseek'?-650:-700)));
+    series[k]=Array.from({length:200},(_,i)=> base + Math.sin(i/6)*(k==='gpt5'?6:3) + i*(k==='gpt5'?2.2:(k==='claude'?1.1:(k==='deepseek'?-1.8:-2.0))));
   });
-  // also seed a couple of items so panel tidak kosong
   if(trades.length===0){
-    trades = [
-      {model:'Claude',symbol:'SOLUSDT',price:158.12,qty:.23,notional:36,side:'SELL',conf:54,slip:21,lat:182,live:true,time:new Date().toLocaleTimeString().slice(0,8)},
-      {model:'GPT-5',symbol:'ETHUSDT',price:2520,qty:.05,notional:126,side:'BUY',conf:71,slip:11,lat:188,live:true,time:new Date().toLocaleTimeString().slice(0,8)}
-    ];
+    trades=[{model:'Claude',symbol:'SOLUSDT',price:158.12,qty:.23,notional:36,side:'SELL',conf:54,slip:21,lat:182,live:true,time:new Date().toLocaleTimeString().slice(0,8)}];
   }
   if(chats.length===0){
-    chats = [
-      {model:'Claude',tag:'AGGR',time:new Date().toLocaleTimeString().slice(0,8),text:'Micro-structure shift on BTCUSDT. Tight stop, quick scalp.',action:'SELL 0.017 BTCUSDT @ market'}
-    ];
+    chats=[{model:'Claude',tag:'AGGR',time:new Date().toLocaleTimeString().slice(0,8),text:'Micro-structure shift on BTCUSDT. Tight stop, quick scalp.',action:'SELL 0.017 BTCUSDT @ market'}];
   }
 }
-
-/* restore persisted state safely */
-const restored = loadState();
-if(restored){
-  series = restored.series; agents = restored.agents;
-  trades = restored.trades||[]; chats = restored.chats||[];
-  const elapsedSec = Math.min(3600, Math.floor((Date.now()- (restored.lastTs||Date.now()))/1000));
-  if(!isValidState(restored)) seedSeries();
-  // fast-forward sedikit supaya terasa “berjalan”
-  for(let i=0;i<elapsedSec;i++) tick(false);
-}else{
-  seedSeries();
+function load(){
+  const raw=localStorage.getItem(STORE_KEY);
+  if(!raw){ seed(); return; }
+  const st=safeParse(raw);
+  if(!validState(st)){ clearBadStorage(); seed(); return; }
+  series=st.series; agents=st.agents; trades=st.trades||[]; chats=st.chats||[];
 }
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({series,agents,trades,chats,last:Date.now()})); }catch(e){}
+}
+load();
 
-/* ----------------- Canvas Chart ----------------- */
+/* =================== CANVAS + LAYOUT KICK =================== */
 const cv=document.getElementById('chart'); const ctx=cv.getContext('2d');
 function resize(){ cv.width=cv.clientWidth*devicePixelRatio; cv.height=cv.clientHeight*devicePixelRatio; draw(); }
-window.addEventListener('resize',resize); window.addEventListener('load',resize); resize();
+function kickLayout(){
+  // 1) ResizeObserver redraws whenever the canvas box changes
+  const ro=new ResizeObserver(()=>{ if(cv.clientWidth>10 && cv.clientHeight>10) resize(); });
+  ro.observe(cv);
 
-function ensureSeriesReady(){
-  let ok=true;
-  for(const k of names){ if(!Array.isArray(series[k]) || series[k].length<2) { ok=false; break; } }
-  if(!ok){ seedSeries(); saveState(); }
+  // 2) Small retry loop in case first paint still 0px
+  let tries=0; (function again(){
+    if(cv.clientWidth>10) { resize(); return; }
+    if(tries++<20) return setTimeout(again,50);
+    // last resort: set a min width based on parent
+    const p=cv.parentElement; if(p){ cv.style.width='100%'; cv.style.height='440px'; }
+    resize();
+  })();
 }
+window.addEventListener('DOMContentLoaded',kickLayout);
 
+function ensureSeries(){
+  let ok=true; for(const k of names){ if(!Array.isArray(series[k])||series[k].length<2) { ok=false; break; } }
+  if(!ok){ seed(); save(); }
+}
 function draw(){
-  ensureSeriesReady();
-  const w=cv.width,h=cv.height,p=44*devicePixelRatio;
-  if(w===0||h===0) return;
+  ensureSeries();
+  const w=cv.width,h=cv.height; if(!w||!h) return;
+  const p=44*devicePixelRatio;
   ctx.clearRect(0,0,w,h);
-  // grid
   ctx.globalAlpha=.12; ctx.strokeStyle='#cfd2db'; ctx.lineWidth=1;
   for(let y=0;y<6;y++){ ctx.beginPath(); const yy=p+(h-2*p)*y/5; ctx.moveTo(p,yy); ctx.lineTo(w-p,yy); ctx.stroke(); }
   ctx.globalAlpha=1;
-  // bounds
-  const flat = names.flatMap(k=>series[k]);
-  const max=Math.max(...flat), min=Math.min(...flat);
-  const y=v=> h-p - (v-min)/(max-min)*(h-2*p);
+  const flat=names.flatMap(k=>series[k]); const mx=Math.max(...flat), mn=Math.min(...flat);
+  if(!isFinite(mx)||mx===mn){ return; } // guard
+  const y=v=> h-p - (v-mn)/(mx-mn)*(h-2*p);
   const x=(i,N)=> p + i/(N-1)*(w-2*p);
-  // lines + endpoint badges
   names.forEach(k=>{
     const s=series[k]; ctx.beginPath(); ctx.lineWidth=3*devicePixelRatio; ctx.strokeStyle=colors[k];
     for(let i=0;i<s.length;i++){ const xx=x(i,s.length), yy=y(s[i]); if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy); }
@@ -337,10 +320,9 @@ function draw(){
   });
 }
 
-/* ----------------- Trades / Positions / Chat ----------------- */
+/* =================== SIDE PANELS =================== */
 const sideList=document.getElementById('sideList');
-const tabs=[...document.querySelectorAll('.tab')];
-let currentTab='trades';
+const tabs=[...document.querySelectorAll('.tab')]; let currentTab='trades';
 tabs.forEach(t=>t.onclick=()=>{ tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active'); currentTab=t.dataset.tab; renderSide(); });
 
 function renderSide(){
@@ -363,10 +345,10 @@ function renderSide(){
     sideList.appendChild(mk);
     names.forEach(k=>{
       const el=document.createElement('div'); el.className='item';
-      const wins = k==='gpt5'?60:(k==='claude'?57:(k==='deepseek'?50:45));
+      const wins=k==='gpt5'?60:(k==='claude'?57:(k==='deepseek'?50:45));
       el.innerHTML=`<div class="r"><strong>${k.toUpperCase()}</strong><span class="kbd">+${wins}%</span></div>
         <div class="r"><span>Bankroll</span><b>${agents[k].toFixed(4)} SOL</b></div>
-        <div class="r"><span>Max DD</span><b>${ (k==='gpt5'?0: (k==='claude'?4.7:(k==='deepseek'?12.5:18.9))).toFixed(2)}%</b></div>`;
+        <div class="r"><span>Max DD</span><b>${(k==='gpt5'?0:(k==='claude'?4.7:(k==='deepseek'?12.5:18.9))).toFixed(2)}%</b></div>`;
       sideList.appendChild(el);
     });
   }else{
@@ -381,7 +363,7 @@ function renderSide(){
 }
 renderSide();
 
-/* ----------------- Trade generator & chart influence ----------------- */
+/* =================== LIVE FEED & CHART TICKS =================== */
 function nowTime(){ return new Date().toLocaleTimeString().slice(0,8); }
 const PAIRS=[
   {sym:'SOLUSDT',px:()=>CURRENT_PRICES.SOL||FALLBACK.SOL,unit:[0.15,1.2]},
@@ -391,62 +373,45 @@ const PAIRS=[
 ];
 const MODELS=['GPT-5','Claude','DeepSeek','Grok'];
 function rand(a,b){ return a + Math.random()*(b-a); }
-function pick(arr){ return arr[Math.random()*arr.length|0]; }
+function pick(a){ return a[Math.random()*a.length|0]; }
 
 function pushTrade(){
-  const m = pick(MODELS), modelId = m.replace(/[^\w]/g,'').toLowerCase();
-  const p = pick(PAIRS); const px=p.px(); const qty = rand(p.unit[0],p.unit[1]);
-  const notional = Math.max(5, Math.round(px*qty)); // USD value realistis
-  const side = Math.random() < 0.52 ? 'BUY':'SELL';
-  const conf = 45 + (Math.random()*35|0);
-  const slip = 6 + (Math.random()*20|0);
-  const lat  = 160 + (Math.random()*140|0);
+  const m=pick(MODELS), id=m.replace(/[^\w]/g,'').toLowerCase();
+  const p=pick(PAIRS); const px=p.px(); const qty=rand(p.unit[0],p.unit[1]);
+  const notional=Math.max(5, Math.round(px*qty)); // realistis
+  const side=Math.random()<.52?'BUY':'SELL';
+  const conf=45+(Math.random()*35|0), slip=6+(Math.random()*20|0), lat=160+(Math.random()*140|0);
 
-  const t = {model:m, symbol:p.sym, price:px, qty:+qty.toFixed(4), notional, side, conf, slip, lat, live:true, time:nowTime()};
-  trades.unshift(t); if(trades.length>60) trades.pop();
+  trades.unshift({model:m,symbol:p.sym,price:px,qty:+qty.toFixed(4),notional,side,conf,slip,lat,live:true,time:nowTime()});
+  if(trades.length>60) trades.pop();
 
-  const impact = (notional/10000) * (side==='BUY'? 1 : -1); // skala konservatif
-  agents[modelId] = Math.max(0.05, agents[modelId] + impact/ (modelId==='gpt5'?1.2:(modelId==='claude'?1.6:(modelId==='deepseek'?1.8:2.0))));
-  nudgeSeries(modelId, impact);
+  const impact=(notional/10000)*(side==='BUY'?1:-1);
+  agents[id]=Math.max(0.05, agents[id] + impact / (id==='gpt5'?1.2:(id==='claude'?1.6:(id==='deepseek'?1.8:2.0))));
+  series[id][series[id].length-1] += impact*8;
 
-  if(Math.random()<0.5){
-    chats.unshift({
-      model:m, tag:(modelId==='claude'?'AGGR':modelId==='gpt5'?'REACT':modelId==='deepseek'?'BAL':'DEF'),
-      time:nowTime(),
-      text:`${side} ${qty.toFixed(4)} ${p.sym} @ $${px.toLocaleString()}. Setup ${conf}%.`,
-      action:`${side} ${qty.toFixed(4)} ${p.sym}`
-    });
-    if(chats.length>60) chats.pop();
+  if(Math.random()<.5){
+    chats.unshift({model:m,tag:(id==='claude'?'AGGR':id==='gpt5'?'REACT':id==='deepseek'?'BAL':'DEF'),
+      time:nowTime(), text:`${side} ${qty.toFixed(4)} ${p.sym} @ $${px.toLocaleString()}. Setup ${conf}%.`,
+      action:`${side} ${qty.toFixed(4)} ${p.sym}`}); if(chats.length>60) chats.pop();
   }
-
-  renderSide(); saveState(); draw();
+  renderSide(); save(); draw();
 }
-setInterval(pushTrade, 4200);
+setInterval(pushTrade,4200);
 
-/* Chart passive drift tick */
 function tick(saveIt=true){
-  ensureSeriesReady();
+  ensureSeries();
   names.forEach(k=>{
-    const arr=series[k];
-    const last=arr[arr.length-1];
-    const drift = (k==='gpt5'?0.9:(k==='claude'?0.45:(k==='deepseek'?-0.6:-0.7)));
-    const noise = (Math.random()-0.5)*3.2;
-    const next = last + drift + noise;
-    arr.push(next); if(arr.length>360) arr.shift();
+    const a=series[k], last=a[a.length-1];
+    const drift=(k==='gpt5'?0.9:(k==='claude'?0.45:(k==='deepseek'?-0.6:-0.7)));
+    const noise=(Math.random()-0.5)*3.2;
+    a.push(last+drift+noise); if(a.length>360) a.shift();
   });
-  if(saveIt) saveState();
-  draw();
+  if(saveIt) save(); draw();
 }
-setInterval(()=>tick(true), 1800);
+setInterval(()=>tick(true),1800);
 
-function nudgeSeries(modelId, impact){
-  ensureSeriesReady();
-  const arr = series[modelId];
-  arr[arr.length-1] = arr[arr.length-1] + impact*8;
-}
-
-/* initial render */
-renderSide(); draw(); saveState();
+/* first paint once layout is ready */
+kickLayout();
 </script>
 </body>
 </html>
