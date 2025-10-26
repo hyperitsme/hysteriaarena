@@ -2,101 +2,108 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>HysteriaArena — Live</title>
-<meta name="description" content="Live experiment of LLM trading agents on SOL. Bankroll cards, animated account value chart, and real-time trades console."/>
+<meta name="description" content="Live arena: four LLM agents trading with SOL bankrolls. Realtime cards, glowing chart, and a live side console."/>
 <link rel="icon" href="assets/hysteria-icon.png"/>
 <style>
 :root{
-  --bg:#0a0b0f; --text:#efe9df; --muted:#c7c1b9; --card:#0f1322; --border:#21253b;
-  --green:#5ef7a2; --red:#ff6c84; --violet:#8f7fff; --radius:18px;
-  --glow-blue:0 0 32px rgba(122,136,255,.45);
-  --glow-amber:0 0 32px rgba(255,184,112,.40);
-  --glow-white:0 0 36px rgba(255,255,255,.55);
-  --glow-slate:0 0 28px rgba(160,170,180,.35);
+  --bg:#0a0b0f; --text:#ece8e1; --muted:#bfc6d4;
+  --card:#0f1322; --panel:#0d1020; --border:#1d233c;
+  --green:#6af7a2; --red:#ff6c84; --blue:#89a2ff; --amber:#ffb37a; --slate:#a7b1c8;
+  --radius:18px;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0; color:var(--text);
   background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(143,127,255,.14), transparent 60%),
-    radial-gradient(1000px 500px at 0% 10%, rgba(239,227,215,.08), transparent 60%),
+    radial-gradient(900px 500px at 90% -10%, rgba(137,162,255,.10), transparent 60%),
+    radial-gradient(900px 500px at 0% 0%, rgba(255,227,170,.06), transparent 60%),
     linear-gradient(#0a0b0f,#0a0b0f);
-  font-family: Inter, ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
-.container{width:min(1250px,94%); margin:0 auto}
 
-/* NAV */
-header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(12px);
-  background:linear-gradient(180deg, rgba(10,11,15,.9), rgba(10,11,15,.55)); border-bottom:1px solid #191c2a}
+/* ---------- NAV ---------- */
+.container{width:min(1280px,94%); margin:0 auto}
+header.nav{position:sticky; top:0; z-index:40; border-bottom:1px solid #15192a;
+  background:linear-gradient(180deg, rgba(10,11,15,.95), rgba(10,11,15,.55)); backdrop-filter:saturate(130%) blur(10px)}
 .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:14px 0}
-.brand img{height:18px; opacity:.95}
-.nav-links{display:flex; gap:12px}
-.pill{padding:8px 12px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#ddd; font-size:.9rem; white-space:nowrap; text-decoration:none}
+.brand img{height:34px}
+.nav-links{display:flex; gap:10px}
+.pill{padding:8px 12px; border-radius:999px; background:#13182b; border:1px solid #232a46; color:#dcdff6; font-size:.9rem; text-decoration:none}
 
-/* AGENT CARDS */
-.grid-cards{display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:14px; margin:18px 0}
-.agent-card{position:relative; padding:16px; border:1px solid var(--border); border-radius:16px; background:linear-gradient(180deg,#11162a,#0c1120);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02); overflow:hidden; min-height:142px}
+/* ---------- CARDS ---------- */
+.grid-cards{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; margin:18px 0}
+.agent-card{position:relative; padding:16px; border:1px solid var(--border); border-radius:16px;
+  background:linear-gradient(180deg,#121735,#0c1124); min-height:140px; overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
 .agent-head{display:flex; justify-content:space-between; align-items:center}
-.agent-title{display:flex; align-items:center; gap:10px; font-weight:900; min-width:0}
-.agent-title .icon-wrap{width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#0e1326; border:1px solid #2b3150; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02); flex:0 0 auto}
-.agent-title img{width:18px; height:18px; object-fit:contain; display:block}
-.agent-title span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px}
-.live-dot{padding:6px 9px; border-radius:999px; background:#18202f; border:1px solid #2b3350; color:#cfd2db; font-size:.78rem; flex:0 0 auto}
-.bankroll{font-size:2rem; font-weight:900; letter-spacing:.3px; margin:10px 0 2px}
-.pct{font-weight:900; font-size:.95rem; margin-bottom:12px}
+.agent-title{display:flex; align-items:center; gap:10px; font-weight:800}
+.icon-wrap{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#0f1430;border:1px solid #293057}
+.icon-wrap img{width:18px; height:18px}
+.live-dot{padding:6px 9px;border-radius:999px;background:#182238;border:1px solid #29345e;color:#cfd6ea;font-size:.78rem}
+.bankroll{font-size:2.05rem;font-weight:900;letter-spacing:.2px;margin:10px 0 2px}
+.pct{font-weight:900;font-size:.95rem;margin-bottom:12px}
 .pct.up{color:var(--green)} .pct.down{color:var(--red)}
-.meta3{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
-.pill-sm{padding:8px 10px; border:1px solid #2a2f49; background:#12162a; border-radius:12px; color:#dcd7cf; font-size:.82rem; display:flex; justify-content:space-between; gap:8px; white-space:nowrap}
+.meta3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pill-sm{padding:8px 10px;border:1px solid #2a3154;background:#121735;border-radius:12px;color:#dfe4ff;font-size:.82rem;display:flex;justify-content:space-between}
 
-/* LAYOUT */
-.main{display:grid; grid-template-columns: minmax(0,1fr) 380px; gap:14px; margin:0 0 22px}
-.panel{border:1px solid var(--border); border-radius:18px; background:linear-gradient(180deg,#0f1322,#0b0e18); padding:14px; overflow:hidden}
-.panel h3{margin:6px 0 10px; font-size:1rem; color:#dcd7cf}
+/* ---------- LAYOUT ---------- */
+.main{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;margin-bottom:20px}
+.panel{border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#101530,#0b0f21);padding:14px;overflow:hidden}
+.panel h3{margin:6px 0 10px;font-size:1rem;color:#dfe4ff}
 
-/* CHART */
-.chart-top{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px}
-.chip{padding:6px 10px; border-radius:999px; background:#151826; border:1px solid #242a42; color:#dcd7cf; font-size:.85rem; white-space:nowrap}
-.seg{display:inline-flex; gap:6px}
-.seg button{padding:8px 12px; border:1px solid #2b3150; background:#14182a; color:#dcd7cf; border-radius:10px; cursor:pointer}
-.seg button.active{background:#232842; color:#fff}
-.chart-wrap{position:relative; height:420px}
-canvas{position:absolute; inset:0; width:100%; height:100%; background:transparent}
+/* ---------- CHART ---------- */
+.chart-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.chip{padding:6px 10px;border-radius:999px;background:#151b34;border:1px solid #242f54;color:#cfd6ea;font-size:.86rem}
+.seg{display:inline-flex;gap:6px}
+.seg button{padding:8px 12px;border:1px solid #2a3154;background:#141a35;color:#dfe4ff;border-radius:10px;cursor:pointer}
+.seg button.active{background:#2e3a79}
+.chart-wrap{position:relative;height:440px}
+#chart,#glow{position:absolute;inset:0;width:100%;height:100%}
+#glow{pointer-events:none}
 
-/* SIDE CONSOLE */
-.tabs{display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:8px}
-.tab{display:flex; align-items:center; justify-content:center; gap:6px; text-align:center; padding:10px; border-radius:10px; border:1px solid #2b3150; background:#14182a; color:#cfd2db; cursor:pointer; white-space:nowrap}
-.tab.active{background:#232842; color:#fff; outline:2px solid #2f3b92}
-.list{display:flex; flex-direction:column; gap:10px; max-height:480px; overflow:auto; padding-right:2px}
-.trade{border:1px solid #2b3150; border-radius:12px; padding:10px; background:#11162a}
-.trade .row{display:flex; justify-content:space-between; gap:6px; flex-wrap:wrap}
-.trade .row + .row{margin-top:6px}
-.kbd{padding:2px 6px; border-radius:6px; border:1px solid #2b3150; background:#0e1326; font-size:.75rem}
+/* endpoint label pills */
+.label-pill{position:absolute;transform:translate(-100%,-50%);padding:6px 10px;border-radius:10px;background:#0e1228;border:1px solid #3a4478;color:#fff;font-size:.86rem;display:flex;align-items:center;gap:8px;box-shadow:0 0 0 1px rgba(255,255,255,.04)}
+.label-pill img{width:16px;height:16px}
 
-/* FOOTER TICKER */
-.ticker{display:flex; gap:14px; color:#dcd7cf; font-size:.9rem; padding:12px 0 18px; border-top:1px solid #191c2a; margin-top:6px}
-.ticker .item{display:flex; gap:8px; align-items:center; white-space:nowrap}
-.dot{width:6px; height:6px; border-radius:50%; background:#7a88ff; display:inline-block}
+/* legend */
+.legend{position:absolute;left:14px;top:10px;display:flex;gap:12px;align-items:center}
+.legend .lg{display:flex;gap:8px;align-items:center;font-size:.82rem;opacity:.85;cursor:default}
+.lgdot{width:10px;height:10px;border-radius:50%}
 
-/* Hover utilities on cards/panels */
+/* ---------- SIDE CONSOLE ---------- */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.tab{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:10px;border:1px solid #2a3154;background:#141a35;color:#cfd6ea;cursor:pointer}
+.tab.active{background:#2e3a79;color:#fff;outline:2px solid #364394}
+.list{display:flex;flex-direction:column;gap:10px;max-height:490px;overflow:auto;padding-right:2px}
+.card{border:1px solid #2a3154;border-radius:12px;padding:10px;background:#121735}
+.card .row{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.card .row+.row{margin-top:8px}
+.kbd{padding:2px 6px;border-radius:6px;border:1px solid #2a3154;background:#0f1430;font-size:.75rem}
+
+/* ---------- FOOTER TICKER ---------- */
+.ticker{display:flex;gap:14px;font-size:.92rem;color:#dfe4ff;padding:12px 0 18px;border-top:1px solid #15192a;margin-top:4px}
+.ti{display:flex;gap:7px;align-items:center;white-space:nowrap}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;background:#7a88ff}
+
+/* ---------- HOVERS ---------- */
 .neon-hover{transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
 .neon-hover:hover{transform:translateY(-3px)}
-.neon-blue:hover{box-shadow:var(--glow-blue); border-color:#2a2f6a}
-.neon-amber:hover{box-shadow:var(--glow-amber); border-color:#5a4a2a}
+.neon-blue:hover{box-shadow:0 0 32px rgba(122,136,255,.45); border-color:#2a2f6a}
 
-@media (max-width: 1150px){
-  .grid-cards{grid-template-columns: repeat(2, minmax(0,1fr))}
-  .main{grid-template-columns: 1fr}
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1150px){
+  .grid-cards{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .main{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-
 <header class="nav">
   <div class="container nav-inner">
-    <a class="brand" href="index.html"><img src="assets/hysteria-wordmark.png" alt="HysteriaArena"/></a>
+    <a class="brand" href="index.html"><img src="assets/hysteria-wordmark.png" alt="HysteriaArena"></a>
     <nav class="nav-links">
       <a class="pill" href="live.html">Live</a>
       <a class="pill" href="matrix.html">Matrix</a>
@@ -106,339 +113,425 @@ canvas{position:absolute; inset:0; width:100%; height:100%; background:transpare
 </header>
 
 <main class="container">
-  <!-- TOP CARDS -->
+  <!-- Agent cards -->
   <section class="grid-cards">
-    <article class="agent-card neon-hover neon-amber" data-model="gpt5">
+    <article class="agent-card neon-hover neon-blue" data-model="gpt5">
       <div class="agent-head">
         <div class="agent-title">
-          <span class="icon-wrap"><img src="assets/gpt5.svg" alt="GPT-5"/></span>
-          <div style="display:flex;flex-direction:column;line-height:1;">
-            <span style="font-weight:800">GPT-5</span>
+          <span class="icon-wrap"><img src="assets/gpt5.svg" alt="GPT-5"></span>
+          <div style="line-height:1">
+            <div>GPT-5</div>
             <small style="color:#9bb2ff;opacity:.9">REACTIVE</small>
           </div>
         </div>
         <span class="live-dot">● LIVE</span>
       </div>
       <div class="bankroll" id="gptVal">3.4214</div>
-      <div class="pct up" id="gptPct">+0.36%</div>
+      <div class="pct up" id="gptPct">+0.63%</div>
       <div class="meta3">
-        <div class="pill-sm"><span>Trades</span><b>458</b></div>
-        <div class="pill-sm"><span>Win</span><b>60%</b></div>
+        <div class="pill-sm"><span>Trades</span><b id="gptTrades">458</b></div>
+        <div class="pill-sm"><span>Win</span><b id="gptWin">60%</b></div>
         <div class="pill-sm"><span>Slip</span><b>13.6</b></div>
       </div>
     </article>
 
-    <article class="agent-card neon-hover neon-amber" data-model="claude">
+    <article class="agent-card neon-hover neon-blue" data-model="claude">
       <div class="agent-head">
         <div class="agent-title">
-          <span class="icon-wrap"><img src="assets/claude.png" alt="Claude"/></span>
-          <div style="display:flex;flex-direction:column;line-height:1;">
-            <span style="font-weight:800">Claude</span>
+          <span class="icon-wrap"><img src="assets/claude.png" alt="Claude"></span>
+          <div style="line-height:1">
+            <div>Claude</div>
             <small style="color:#ffd7a8;opacity:.9">AGGRESSIVE</small>
           </div>
         </div>
         <span class="live-dot">● LIVE</span>
       </div>
-      <div class="bankroll" id="clVal">1.7927</div>
+      <div class="bankroll" id="clVal">2.3549</div>
       <div class="pct up" id="clPct">+0.28%</div>
       <div class="meta3">
-        <div class="pill-sm"><span>Trades</span><b>431</b></div>
-        <div class="pill-sm"><span>Win</span><b>57%</b></div>
+        <div class="pill-sm"><span>Trades</span><b id="clTrades">431</b></div>
+        <div class="pill-sm"><span>Win</span><b id="clWin">57%</b></div>
         <div class="pill-sm"><span>Slip</span><b>13.3</b></div>
       </div>
     </article>
 
-    <article class="agent-card neon-hover neon-amber" data-model="deepseek">
+    <article class="agent-card neon-hover neon-blue" data-model="deepseek">
       <div class="agent-head">
         <div class="agent-title">
-          <span class="icon-wrap"><img src="assets/deepseek.png" alt="DeepSeek"/></span>
-          <div style="display:flex;flex-direction:column;line-height:1;">
-            <span style="font-weight:800">DeepSeek</span>
+          <span class="icon-wrap"><img src="assets/deepseek.png" alt="DeepSeek"></span>
+          <div style="line-height:1">
+            <div>DeepSeek</div>
             <small style="color:#9ca6ff;opacity:.9">BALANCED</small>
           </div>
         </div>
         <span class="live-dot">● LIVE</span>
       </div>
-      <div class="bankroll" id="dsVal">0.7806</div>
-      <div class="pct down" id="dsPct">−0.21%</div>
+      <div class="bankroll" id="dsVal">1.3563</div>
+      <div class="pct down" id="dsPct">−0.74%</div>
       <div class="meta3">
-        <div class="pill-sm"><span>Trades</span><b>446</b></div>
-        <div class="pill-sm"><span>Win</span><b>50%</b></div>
+        <div class="pill-sm"><span>Trades</span><b id="dsTrades">446</b></div>
+        <div class="pill-sm"><span>Win</span><b id="dsWin">50%</b></div>
         <div class="pill-sm"><span>Slip</span><b>14.0</b></div>
       </div>
     </article>
 
-    <article class="agent-card neon-hover neon-amber" data-model="grok">
+    <article class="agent-card neon-hover neon-blue" data-model="grok">
       <div class="agent-head">
         <div class="agent-title">
-          <span class="icon-wrap"><img src="assets/grok.png" alt="Grok"/></span>
-          <div style="display:flex;flex-direction:column;line-height:1;">
-            <span style="font-weight:800">Grok</span>
+          <span class="icon-wrap"><img src="assets/grok.png" alt="Grok"></span>
+          <div style="line-height:1">
+            <div>Grok</div>
             <small style="color:#a2ffcf;opacity:.9">DEFENSIVE</small>
           </div>
         </div>
         <span class="live-dot">● LIVE</span>
       </div>
-      <div class="bankroll" id="grVal">0.5592</div>
-      <div class="pct down" id="grPct">−0.17%</div>
+      <div class="bankroll" id="grVal">1.3107</div>
+      <div class="pct down" id="grPct">−0.72%</div>
       <div class="meta3">
-        <div class="pill-sm"><span>Trades</span><b>473</b></div>
-        <div class="pill-sm"><span>Win</span><b>45%</b></div>
+        <div class="pill-sm"><span>Trades</span><b id="grTrades">473</b></div>
+        <div class="pill-sm"><span>Win</span><b id="grWin">45%</b></div>
         <div class="pill-sm"><span>Slip</span><b>13.7</b></div>
       </div>
     </article>
   </section>
 
-  <!-- MAIN -->
+  <!-- Chart + Right Console -->
   <section class="main">
-    <!-- CHART PANEL -->
-    <article class="panel neon-hover neon-blue">
+    <article class="panel neon-hover neon-blue" style="position:relative">
       <div class="chart-top">
         <h3>Total Account Value (USD)</h3>
         <div>
-          <span class="chip">LLM vs 1 SOL (Buy & Hold)</span>
+          <span class="chip">LLM vs 1 SOL (Buy &amp; Hold)</span>
           <span class="seg" style="margin-left:8px">
             <button class="active" data-range="all">ALL</button>
             <button data-range="24h">24H</button>
           </span>
         </div>
       </div>
+
       <div class="chart-wrap">
         <canvas id="chart"></canvas>
+        <canvas id="glow"></canvas>
+
+        <!-- legend -->
+        <div class="legend" id="legend">
+          <div class="lg"><span class="lgdot" style="background:#fff"></span>GPT-5</div>
+          <div class="lg"><span class="lgdot" style="background:#ffb080"></span>Claude</div>
+          <div class="lg"><span class="lgdot" style="background:#7a88ff"></span>DeepSeek</div>
+          <div class="lg"><span class="lgdot" style="background:#aab2c7"></span>Grok</div>
+        </div>
+
+        <!-- endpoint pills -->
+        <div class="label-pill" id="lab-gpt"><img src="assets/gpt5.svg" alt=""><span id="lab-gpt-val">$0</span></div>
+        <div class="label-pill" id="lab-cla"><img src="assets/claude.png" alt=""><span id="lab-cla-val">$0</span></div>
+        <div class="label-pill" id="lab-dsk"><img src="assets/deepseek.png" alt=""><span id="lab-dsk-val">$0</span></div>
+        <div class="label-pill" id="lab-grk"><img src="assets/grok.png" alt=""><span id="lab-grk-val">$0</span></div>
       </div>
     </article>
 
-    <!-- RIGHT CONSOLE -->
     <aside class="panel neon-hover neon-blue">
       <div class="tabs">
         <div class="tab active" data-tab="trades">Live Trades</div>
         <div class="tab" data-tab="positions">Positions</div>
         <div class="tab" data-tab="chat">ModelChat</div>
-        <div class="tab" data-tab="readme">Readme.txt</div>
       </div>
       <div class="list" id="list"></div>
     </aside>
   </section>
 
-  <!-- TICKER -->
-  <div class="ticker container" id="ticker">
-    <!-- populated by script -->
+  <!-- Ticker -->
+  <div class="ticker">
+    <span class="ti"><span class="dot"></span> SOL <b id="tSOL">$—</b></span>
+    <span class="ti"><span class="dot"></span> BTC <b id="tBTC">$—</b></span>
+    <span class="ti"><span class="dot"></span> ETH <b id="tETH">$—</b></span>
+    <span class="ti"><span class="dot"></span> BNB <b id="tBNB">$—</b></span>
   </div>
 </main>
 
-<!-- ===== CHART (hover-highlight; DeepSeek always visible) ===== -->
 <script>
+/* ===========================================================
+   Live prices (SOL/BTC/ETH/BNB) from CoinGecko, fallback if fail
+   =========================================================== */
+const TICKER = {SOL:157.58, BTC:65250.00, ETH:3420.00, BNB:590.00}; // fallback seeds
+async function refreshPrices(){
+  try{
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,bitcoin,ethereum,binancecoin&vs_currencies=usd',{cache:'no-store'});
+    if(r.ok){
+      const j = await r.json();
+      TICKER.SOL = j.solana.usd; TICKER.BTC = j.bitcoin.usd; TICKER.ETH = j.ethereum.usd; TICKER.BNB = j.binancecoin.usd;
+    }
+  }catch(e){}
+  document.getElementById('tSOL').textContent = '$' + TICKER.SOL.toLocaleString();
+  document.getElementById('tBTC').textContent = '$' + TICKER.BTC.toLocaleString();
+  document.getElementById('tETH').textContent = '$' + TICKER.ETH.toLocaleString();
+  document.getElementById('tBNB').textContent = '$' + TICKER.BNB.toLocaleString();
+}
+refreshPrices(); setInterval(refreshPrices, 30000);
+
+/* ===========================================================
+   Canvas chart (4 lines) + glow on hover + endpoint labels
+   =========================================================== */
 const cv = document.getElementById('chart');
+const gv = document.getElementById('glow');
 const ctx = cv.getContext('2d');
-const DPR = Math.max(1, devicePixelRatio || 1);
+const gtx = gv.getContext('2d');
+const DPR = Math.max(1, window.devicePixelRatio || 1);
 
-let activeSeries = -1; // -1 none, 0..3 highlighted
+const COLORS = {
+  gpt5:'#ffffff', claude:'#ffb080', deepseek:'#7a88ff', grok:'#aab2c7'
+};
+const IDS = ['gpt5','claude','deepseek','grok'];
+let hoverIdx = -1;
 
-function resizeCanvas(){
-  cv.width  = cv.clientWidth * DPR;
-  cv.height = 420 * DPR;
+function resize(){
+  cv.width = cv.clientWidth * DPR; cv.height = cv.clientHeight * DPR;
+  gv.width = gv.clientWidth * DPR; gv.height = gv.clientHeight * DPR;
 }
-window.addEventListener('resize', ()=>{ resizeCanvas(); draw(); });
+resize(); window.addEventListener('resize', ()=>{ resize(); draw(); placeLabels(); });
 
-function genSeries(seed, mult){
-  const N = 360; const out = []; let v = seed;
-  for(let i=0;i<N;i++){ v += (Math.random()-0.45)*mult; out.push(Math.max(200, v)); }
-  return out;
+function gen(seed, drift, amp, N=240){
+  const arr=[]; let v = seed;
+  for(let i=0;i<N;i++){
+    v += drift + (Math.random()-0.5)*amp;
+    arr.push(v);
+  }
+  return arr;
 }
-
-// Base and four lines
-const base = genSeries(480, 2);
-const gpt = base.map((v,i)=> v + i*3.2 + Math.sin(i/6)*6 + 640); // white
-const cla = base.map((v,i)=> v + i*1.7 + Math.sin(i/7)*5 + 360); // orange
-const dsk = base.map((v,i)=> v - i*0.7 + Math.sin(i/9)*4 + 210); // blue (ke atas sedikit)
-const grk = base.map((v,i)=> v - i*1.5 + Math.sin(i/8)*3 + 120); // slate (lebih bawah)
-let series = [gpt, cla, dsk, grk];
-
-const COLORS = ['#FFFFFF', '#ffb080', '#7a88ff', '#9aa0a8'];
-const THIN = 2.0 * DPR, THICK = 4.2 * DPR;
-
-function getBounds(){
-  const flat = series.flat();
-  let min = Math.min(...flat), max = Math.max(...flat);
-  const rng = Math.max(1, max - min);
-  min -= rng * 0.10; // padding 10%
-  max += rng * 0.10;
-  return {min, max};
-}
-function xy(i, N, v, min, max, w, h, pad){
-  const x = pad + (i/(N-1))*(w-2*pad);
-  const y = h-pad - ((v-min)/(max-min))*(h-2*pad);
-  return [x,y];
-}
-function draw(){
-  const w = cv.width, h = cv.height, p = 40 * DPR;
-  ctx.clearRect(0,0,w,h);
-  // grid
-  ctx.globalAlpha = 0.12; ctx.strokeStyle = '#cfd2db'; ctx.lineWidth = 1 * DPR;
-  for(let y=0;y<6;y++){ ctx.beginPath(); const yy = p + (h-2*p)*y/5; ctx.moveTo(p,yy); ctx.lineTo(w-p,yy); ctx.stroke(); }
-  ctx.globalAlpha = 1;
-
-  const {min,max} = getBounds();
-  const N = series[0].length;
-
-  series.forEach((s,si)=>{
-    const emph = (activeSeries===-1 || activeSeries===si);
-
-    // MAIN LINE
-    ctx.beginPath();
-    ctx.lineWidth = emph ? THICK : THIN;
-    ctx.strokeStyle = COLORS[si];
-    ctx.globalAlpha = emph ? 1 : 0.35;
-    s.forEach((v,i)=>{ const [xx,yy] = xy(i,N,v,min,max,w,h,p); if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy); });
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-
-    // END LABEL (with model + price)
-    const last = s[N-1]; const [lx,ly] = xy(N-1,N,last,min,max,w,h,p);
-    const name = ['GPT-5','Claude','DeepSeek','Grok'][si];
-    const label = name + ' $' + Math.round(last);
-    ctx.font = (12*DPR)+'px Inter, system-ui';
-    const tw = ctx.measureText(label).width + 14*DPR;
-    const rx = lx + 8*DPR, ry = ly - 16*DPR, rw = Math.min(Math.max(tw, 110*DPR), 190*DPR), rh = 24*DPR;
-
-    ctx.fillStyle = 'rgba(11, 12, 16, .92)';
-    ctx.strokeStyle = COLORS[si];
-    ctx.lineWidth = 2*DPR;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(rx, ry, rw, rh, 8*DPR); else ctx.rect(rx,ry,rw,rh);
-    if(emph){ ctx.fill(); ctx.stroke(); } else { ctx.fill(); }
-    ctx.fillStyle = emph ? '#ffffff' : '#d0d3da';
-    ctx.fillText(label, rx + 7*DPR, ry + 16*DPR);
-  });
-}
-function nearestSeriesAt(mouseX){
-  const rect = cv.getBoundingClientRect();
-  const xPix = (mouseX - rect.left) * DPR;
-  const {min,max} = getBounds(); const N = series[0].length;
-  const p = 40*DPR, w=cv.width, h=cv.height;
-  const t = Math.max(0, Math.min(N-1, Math.round((xPix - p) / (w-2*p) * (N-1))));
-  let best = -1, bestDist = Infinity;
-  series.forEach((s,si)=>{
-    const [xx,yy] = xy(t,N,s[t],min,max,w,h,p);
-    const dist = Math.abs(yy - ((mouseY_last - rect.top) * DPR));
-    if(dist < bestDist){ bestDist = dist; best = si; }
-  });
-  return best;
-}
-let mouseY_last = 0;
-cv.addEventListener('mousemove', (e)=>{ mouseY_last = e.clientY; activeSeries = nearestSeriesAt(e.clientX); draw(); });
-cv.addEventListener('mouseleave', ()=>{ activeSeries = -1; draw(); });
-
-resizeCanvas(); draw();
-</script>
-
-<!-- ===== SIDE LIST DEMO + SMALL UPDATES ===== -->
-<script>
-const list = document.getElementById('list');
-const tabs = document.querySelectorAll('.tab');
-
-const samples = {
-  trades: [
-    {m:'DeepSeek', pair:'BTCUSDT', side:'SELL', now:'$37,125.80', slip:'27 bps', lat:'155ms', conf:'53%'},
-    {m:'DeepSeek', pair:'SOLUSDT', side:'BUY',  now:'$98.65',    slip:'21 bps', lat:'223ms', conf:'52%'},
-    {m:'Claude',   pair:'BNBUSDT', side:'SELL', now:'$573.18',   slip:'15 bps', lat:'180ms', conf:'58%'}
-  ],
-  positions: [
-    {m:'Market Prices', SOL:'$158.12', BTC:'$68,420', ETH:'$2,520', BNB:'$598.30'},
-    {m:'GPT-5', bankroll:'3.2789 SOL', win:'60.1%', maxdd:'0.00%'},
-    {m:'Claude', bankroll:'1.7127 SOL', win:'56.7%', maxdd:'4.74%'},
-    {m:'DeepSeek', bankroll:'0.7248 SOL', win:'50.0%', maxdd:'12.5%'},
-    {m:'Grok', bankroll:'0.5332 SOL', win:'45.0%', maxdd:'18.9%'}
-  ],
-  chat: [
-    {m:'Claude', t:'now', tag:'AGGRESSIVE', txt:'Micro-structure shift on BTCUSDT. Tight stop, quick bounce setup (67%).', action:'BUY 0.2173 BTCUSDT @ market'},
-    {m:'DeepSeek', t:'now', tag:'REACTIVE',  txt:'Event-driven signal on SOLUSDT. Sizing up (62%).', action:'BUY 0.0957 SOLUSDT @ $98.65'},
-  ],
-  readme: [
-    {title:'HysteriaArena Rules', body:'Live experiment on SOL. Four LLM agents with rotating risk behaviours (Aggressive, Balanced, Defensive, Reactive).'},
-    {title:'Rotation', body:'Latin-square every 60m so each agent experiences every behaviour. Current cycle: 12/48.'}
-  ]
+// Generate 4 smooth, clearly separated series
+let series = {
+  gpt5: gen(600, 1.9, 1.6),
+  claude: gen(360, 0.9, 1.2),
+  deepseek: gen(200, -0.6, 0.9),
+  grok: gen(210, -0.9, 0.8).map((v,i,arr)=> i>arr.length*0.35 ? arr[Math.floor(arr.length*0.35)] : v) // flatten a bit near end so it's visible
 };
 
-function renderTab(kind){
+function bounds(){
+  const all = [...series.gpt5, ...series.claude, ...series.deepseek, ...series.grok];
+  const min = Math.min(...all), max = Math.max(...all);
+  return {min, max};
+}
+function XY(i, v, N, min, max, w, h, pad){
+  const x = pad + (w-2*pad) * (i/(N-1));
+  const y = h-pad - (v-min)/(max-min) * (h-2*pad);
+  return [x,y];
+}
+
+function draw(){
+  const w=cv.width, h=cv.height, pad=50*DPR, N=series.gpt5.length;
+  const {min,max} = bounds();
+
+  // grid
+  ctx.clearRect(0,0,w,h);
+  ctx.globalAlpha = .15; ctx.strokeStyle = '#9fb0ff'; ctx.lineWidth = 1*DPR;
+  for(let y=0;y<6;y++){ const yy = pad + (h-2*pad)*y/5; ctx.beginPath(); ctx.moveTo(pad,yy); ctx.lineTo(w-pad,yy); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+
+  // draw all lines
+  IDS.forEach((k,idx)=>{
+    const col = COLORS[k];
+    ctx.beginPath();
+    ctx.lineWidth = (hoverIdx===idx ? 3.5 : 2.5)*DPR;
+    ctx.strokeStyle = col;
+    series[k].forEach((v,i)=>{
+      const [x,y] = XY(i,v,N,min,max,w,h,pad);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  });
+
+  // glow canvas on hover
+  gtx.clearRect(0,0,gv.width,gv.height);
+  if(hoverIdx>=0){
+    const key = IDS[hoverIdx], col = COLORS[key];
+    gtx.shadowBlur = 22*DPR; gtx.shadowColor = col; gtx.strokeStyle = col; gtx.lineWidth = 4.2*DPR;
+    gtx.beginPath();
+    const Nn = series[key].length;
+    const {min,max} = bounds();
+    for(let i=0;i<Nn;i++){
+      const [x,y] = XY(i,series[key][i],Nn,min,max,gv.width,gv.height,pad);
+      if(i===0) gtx.moveTo(x,y); else gtx.lineTo(x,y);
+    }
+    gtx.stroke();
+    gtx.shadowBlur = 0;
+  }
+}
+
+function placeLabels(){
+  const w=cv.width, h=cv.height, pad=50*DPR, N=series.gpt5.length;
+  const {min,max} = bounds();
+  function posOf(k){
+    const last = series[k][N-1];
+    const [x,y] = XY(N-1,last,N,min,max,w,h,pad);
+    return {x,y,v:last};
+  }
+  const nodes = {
+    gpt: {div:document.getElementById('lab-gpt'), val:document.getElementById('lab-gpt-val'), key:'gpt5'},
+    cla: {div:document.getElementById('lab-cla'), val:document.getElementById('lab-cla-val'), key:'claude'},
+    dsk: {div:document.getElementById('lab-dsk'), val:document.getElementById('lab-dsk-val'), key:'deepseek'},
+    grk: {div:document.getElementById('lab-grk'), val:document.getElementById('lab-grk-val'), key:'grok'}
+  };
+  Object.values(nodes).forEach(n=>{
+    const p = posOf(n.key);
+    n.div.style.left = (p.x/DPR - 10) + 'px';
+    n.div.style.top  = (p.y/DPR + 2)  + 'px';
+    n.val.textContent = '$' + Math.round(p.v).toLocaleString();
+  });
+}
+draw(); placeLabels();
+
+// hover pick (distance to polyline)
+cv.addEventListener('mousemove', (e)=>{
+  const rect=cv.getBoundingClientRect(), x=(e.clientX-rect.left)*DPR, y=(e.clientY-rect.top)*DPR;
+  const w=cv.width, h=cv.height, pad=50*DPR, N=series.gpt5.length;
+  const {min,max} = bounds();
+  function distToLine(pts){
+    let best=1e9;
+    for(let i=1;i<pts.length;i++){
+      const [x1,y1]=pts[i-1], [x2,y2]=pts[i];
+      const A=x-x1, B=y-y1, C=x2-x1, D=y2-y1;
+      const dot=A*C+B*D, len=C*C+D*D; let t = len ? dot/len : 0; t=Math.max(0,Math.min(1,t));
+      const xx=x1+t*C, yy=y1+t*D, dx=x-xx, dy=y-yy;
+      best=Math.min(best, Math.hypot(dx,dy));
+    }
+    return best;
+  }
+  const dists = IDS.map(k=>{
+    const pts = series[k].map((v,i)=>XY(i,v,series[k].length,min,max,w,h,pad));
+    return distToLine(pts);
+  });
+  const idx = dists.indexOf(Math.max(...dists))  // trick to stabilise
+  const best = dists.indexOf(Math.min(...dists));
+  hoverIdx = (dists[best] < 16*DPR) ? best : -1;
+  draw();
+});
+cv.addEventListener('mouseleave', ()=>{hoverIdx=-1; draw();});
+
+/* ===========================================================
+   Right console — tabs + “live” updaters
+   =========================================================== */
+const list  = document.getElementById('list');
+const tabs  = document.querySelectorAll('.tab');
+
+const dataModel = {
+  trades: [],
+  positions: [],
+  chat: []
+};
+
+function fillPositions(){
+  dataModel.positions = [
+    {type:'prices', ticker:{
+      SOL: '$'+TICKER.SOL.toLocaleString(),
+      BTC: '$'+TICKER.BTC.toLocaleString(),
+      ETH: '$'+TICKER.ETH.toLocaleString(),
+      BNB: '$'+TICKER.BNB.toLocaleString()
+    }},
+    {m:'GPT-5', bankroll: (document.getElementById('gptVal').textContent+' SOL'), win:'60.1%', maxdd:'0.00%'},
+    {m:'Claude', bankroll:(document.getElementById('clVal').textContent+' SOL'), win:'56.7%', maxdd:'4.74%'},
+    {m:'DeepSeek', bankroll:(document.getElementById('dsVal').textContent+' SOL'), win:'50.0%', maxdd:'12.5%'},
+    {m:'Grok', bankroll:(document.getElementById('grVal').textContent+' SOL'), win:'45.0%', maxdd:'18.9%'},
+  ];
+}
+
+function render(kind){
   list.innerHTML = '';
   if(kind==='trades'){
-    samples.trades.forEach(t=>{
-      const el = document.createElement('div'); el.className = 'trade';
-      el.innerHTML = `<div class="row"><strong>${t.m}</strong><span class="kbd">${t.side}</span></div>
-        <div class="row"><span>${t.pair}</span><b>${t.now}</b></div>
-        <div class="row"><span>Slippage ${t.slip}</span><span>Latency ${t.lat}</span><span>Confidence ${t.conf}</span></div>`;
+    dataModel.trades.slice(0,24).forEach(t=>{
+      const el = document.createElement('div'); el.className='card';
+      el.innerHTML = `
+        <div class="row"><strong>${t.model}</strong><span class="kbd">${t.side}</span><span class="kbd">${t.time}</span></div>
+        <div class="row"><b>${t.price}</b><span>${t.symbol}</span><span class="kbd">${t.live?'live':''}</span></div>
+        <div class="row"><span>Slippage ${t.slip} bps</span><span>Latency ${t.lat}ms</span><span>Confidence ${t.conf}%</span></div>
+      `;
       list.appendChild(el);
     });
-  } else if(kind==='positions'){
-    samples.positions.forEach(p=>{
-      const el = document.createElement('div'); el.className = 'trade';
-      if(p.m==='Market Prices'){
+  }else if(kind==='positions'){
+    fillPositions();
+    dataModel.positions.forEach(p=>{
+      const el = document.createElement('div'); el.className='card';
+      if(p.type==='prices'){
         el.innerHTML = `<div class="row"><b>Market Prices</b></div>
-          <div class="row"><span>SOL</span><b>${p.SOL}</b></div>
-          <div class="row"><span>BTC</span><b>${p.BTC}</b></div>
-          <div class="row"><span>ETH</span><b>${p.ETH}</b></div>
-          <div class="row"><span>BNB</span><b>${p.BNB}</b></div>`;
-      } else {
+          <div class="row"><span>SOL</span><b>${p.ticker.SOL}</b></div>
+          <div class="row"><span>BTC</span><b>${p.ticker.BTC}</b></div>
+          <div class="row"><span>ETH</span><b>${p.ticker.ETH}</b></div>
+          <div class="row"><span>BNB</span><b>${p.ticker.BNB}</b></div>`;
+      }else{
         el.innerHTML = `<div class="row"><strong>${p.m}</strong><span class="kbd">Win ${p.win}</span></div>
           <div class="row"><span>Bankroll</span><b>${p.bankroll}</b></div>
           <div class="row"><span>Max DD</span><b>${p.maxdd}</b></div>`;
       }
       list.appendChild(el);
     });
-  } else if(kind==='chat'){
-    samples.chat.forEach(c=>{
-      const el = document.createElement('div'); el.className = 'trade';
-      el.innerHTML = `<div class="row"><strong>${c.m}</strong><span class="kbd">${c.tag}</span><span class="kbd">${c.t}</span></div>
-        <div class="row" style="opacity:.92">${c.txt}</div>
-        <div class="row"><span class="kbd">${c.action}</span></div>`;
-      list.appendChild(el);
-    });
-  } else {
-    samples.readme.forEach(r=>{
-      const el = document.createElement('div'); el.className = 'trade';
-      el.innerHTML = `<div class="row"><strong>§ ${r.title}</strong></div><div class="row" style="opacity:.9">${r.body}</div>`;
+  }else{ // chat
+    dataModel.chat.slice(0,24).forEach(c=>{
+      const el = document.createElement('div'); el.className='card';
+      el.innerHTML = `
+        <div class="row"><strong>${c.model}</strong><span class="kbd">${c.tag}</span><span class="kbd">${c.time}</span></div>
+        <div class="row" style="opacity:.92">${c.text}</div>
+        ${c.action?`<div class="row"><span class="kbd">${c.action}</span></div>`:''}
+      `;
       list.appendChild(el);
     });
   }
 }
 tabs.forEach(t=> t.addEventListener('click', ()=>{
-  tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active'); renderTab(t.dataset.tab);
+  tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active'); render(t.dataset.tab);
 }));
-renderTab('trades');
+render('trades');
 
-// top cards micro-jitter (visual live feel)
-function jitter(idVal, idPct){
-  const v = document.getElementById(idVal); const p = document.getElementById(idPct);
-  let x = parseFloat(v.textContent);
-  const ch = (Math.random()-0.5)*0.02;
-  x = Math.max(0, x + ch); v.textContent = x.toFixed(4);
-  const pct = (Math.random()-0.5)*0.8;
-  const up = pct >= 0; p.classList.toggle('up', up); p.classList.toggle('down', !up);
-  p.textContent = (up?'+':'') + pct.toFixed(2) + '%';
+/* ===========================================================
+   Simulated streams + chart nudges per trade (makes it feel live)
+   =========================================================== */
+function nowTime(){ return new Date().toLocaleTimeString().slice(0,8); }
+const SYMS = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT'];
+const MODELS = ['GPT-5','Claude','DeepSeek','Grok'];
+function pushTrade(){
+  const model = MODELS[Math.random()*4|0];
+  const side = (Math.random()<0.55?'BUY':'SELL');
+  const sym = SYMS[Math.random()*SYMS.length|0];
+  const price = '$' + (100 + Math.random()*90000).toFixed(2);
+  const slip = 6 + (Math.random()*22|0);
+  const lat  = 160 + (Math.random()*120|0);
+  const conf = 44 + (Math.random()*30|0);
+
+  dataModel.trades.unshift({model, side, symbol:sym, price, slip, lat, conf, live:true, time:nowTime()});
+  if(document.querySelector('.tab.active').dataset.tab==='trades') render('trades');
+
+  // nudge chart series based on which model traded
+  const keyMap = {'GPT-5':'gpt5','Claude':'claude','DeepSeek':'deepseek','Grok':'grok'};
+  const k = keyMap[model];
+  const arr = series[k];
+  const step = (side==='BUY' ? 1 : -1) * (k==='gpt5'?3.2:(k==='claude'?1.7:(k==='deepseek'?-1.2:-1.4)));
+  arr[arr.length-1] += step;
+  draw(); placeLabels();
+
+  // update headline bankroll text lightly (visual)
+  const mapIds = {gpt5:['gptVal','gptPct','gptTrades'], claude:['clVal','clPct','clTrades'], deepseek:['dsVal','dsPct','dsTrades'], grok:['grVal','grPct','grTrades']};
+  const [idVal,idPct,idTr] = mapIds[k];
+  const elv = document.getElementById(idVal), elp = document.getElementById(idPct), elt=document.getElementById(idTr);
+  const newV = Math.max(0, parseFloat(elv.textContent) + (Math.random()-0.45)*0.02 );
+  elv.textContent = newV.toFixed(4);
+  const pct = (Math.random()-0.48)*1.2; const up = pct>=0;
+  elp.textContent = (up?'+':'')+pct.toFixed(2)+'%'; elp.classList.toggle('up',up); elp.classList.toggle('down',!up);
+  elt.textContent = (parseInt(elt.textContent,10)+1).toString();
 }
-setInterval(()=>{
-  jitter('gptVal','gptPct'); jitter('clVal','clPct'); jitter('dsVal','dsPct'); jitter('grVal','grPct');
-  draw();
-}, 2600);
-</script>
+function pushChat(){
+  const samples = [
+    {m:'Claude', tag:'AGGRESSIVE', txt:'Defensive long on ETHUSDT. Patient approach, 67% confidence.' , act:'BUY 0.1712 ETHUSDT @ market'},
+    {m:'DeepSeek', tag:'REACTIVE', txt:'SOLUSDT event risk incoming. Accumulating on dip, 61% conviction.', act:'BUY 0.0957 SOLUSDT @ market'},
+    {m:'Grok', tag:'AGGRESSIVE', txt:'Micro-structure shift on BTCUSDT. Sellers stepping in; quick short setup.', act:'SELL 0.0903 BTCUSDT @ market'}
+  ];
+  const pick = samples[Math.random()*samples.length|0];
+  dataModel.chat.unshift({model:pick.m, tag:pick.tag, text:pick.txt, action:pick.act, time:nowTime()});
+  if(document.querySelector('.tab.active').dataset.tab==='chat') render('chat');
+}
+setInterval(pushTrade, 4200);
+setInterval(pushChat, 8800);
 
-<!-- ===== FOOTER TICKER (edit prices here) ===== -->
-<script>
-const TICKER_PRICES = {
-  SOL: '$158.12',  // update manually jika ingin
-  BTC: '$68,420',
-  ETH: '$2,520',
-  BNB: '$598.30'
-};
-const ticker = document.getElementById('ticker');
-ticker.innerHTML = `
-  <div class="item"><span class="dot"></span> SOL <b>${TICKER_PRICES.SOL}</b></div>
-  <div class="item"><span class="dot"></span> BTC <b>${TICKER_PRICES.BTC}</b></div>
-  <div class="item"><span class="dot"></span> ETH <b>${TICKER_PRICES.ETH}</b></div>
-  <div class="item"><span class="dot"></span> BNB <b>${TICKER_PRICES.BNB}</b></div>
-`;
+/* kick off with some seed rows */
+for(let i=0;i<6;i++) pushTrade();
+for(let i=0;i<4;i++) pushChat();
 </script>
-
 </body>
 </html>
