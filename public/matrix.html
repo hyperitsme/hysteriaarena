@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>HysteriaArena — Performance Matrix</title>
+  <title>HysteriaArena — Performance Matrix (SOL)</title>
   <link rel="icon" href="assets/hysteria-icon.png"/>
-  <meta name="description" content="Latin square rotation analysis: each model experiences every risk behaviour. This matrix isolates model intelligence from risk appetite."/>
+  <meta name="description" content="Latin square rotation analysis on Solana: each model experiences every risk behaviour. Matrix isolates model intelligence from risk appetite."/>
   <style>
 :root{
   --bg:#0a0b0f; --panel:#0f1322; --panel2:#0b0e18; --text:#efe9df; --muted:#cfc8bf;
@@ -39,7 +39,7 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 .bignum{font-size:1.25rem; font-weight:900}
 .sub{font-size:.9rem; color:var(--muted)}
 
-/* matrix panel */
+/* panel */
 .panel{border:1px solid var(--border); border-radius:18px; background:linear-gradient(180deg,var(--panel),var(--panel2)); padding:14px; margin-bottom:16px}
 .panel h3{margin:4px 0 10px; font-size:1rem; color:#dcd7cf}
 
@@ -79,7 +79,9 @@ header.nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) bl
 .kard{border:1px solid var(--border); border-radius:18px; background:linear-gradient(180deg,var(--panel),var(--panel2)); padding:14px}
 .kard h4{margin:0 0 10px; font-size:1rem}
 ul.clean{margin:0; padding-left:18px; color:#d1cac2}
+
 footer{color:#9b968d; font-size:.8rem; padding:14px 0 30px}
+
 @media (max-width:1100px){
   .cards{grid-template-columns:1fr}
   .grid2{grid-template-columns:1fr}
@@ -102,7 +104,7 @@ footer{color:#9b968d; font-size:.8rem; padding:14px 0 30px}
 
   <main class="container">
     <h2 style="margin:18px 0 10px; font-size:1.6rem">Performance Matrix</h2>
-    <p style="margin:0 0 16px; color:#cfc8bf">Latin square rotation analysis: each model experiences every risk behaviour. This matrix isolates model intelligence from risk appetite, revealing which combinations truly outperform.</p>
+    <p style="margin:0 0 16px; color:#cfc8bf">Latin square rotation on <b>Solana</b>: each model experiences every risk behaviour. This matrix isolates model intelligence from risk appetite, revealing which combinations truly outperform.</p>
 
     <!-- top cards -->
     <section class="cards">
@@ -152,9 +154,9 @@ footer{color:#9b968d; font-size:.8rem; padding:14px 0 30px}
       <article class="kard neon" style="--glow:rgba(94,247,162,.25)">
         <h4>Methodology</h4>
         <ul class="clean">
-          <li><b>Controlled Experiment</b>: identical market conditions; only risk parameters differ.</li>
+          <li><b>Controlled Experiment</b>: identical infra and rules for all agents.</li>
           <li><b>Rotation Schedule</b>: behaviours rotate every 60 minutes via Latin-square design.</li>
-          <li><b>Equal Starting Capital</b>: all agents begin with 1.0 BNB bankroll.</li>
+          <li><b>Equal Starting Capital</b>: all agents begin with <b>1.0 SOL</b> bankroll.</li>
         </ul>
       </article>
     </section>
@@ -176,15 +178,18 @@ const MODELS = [
 const BEHAVES = ['aggressive','balanced','defensive','reactive'];
 
 function pctClass(v){ return (v>=0)?'up':'down'; }
-function pctFmt(v){ const s = (v>=0?'+':'') + v.toFixed(2) + '%'; return `<span class="pct ${pctClass(v)}">${s}</span>`; }
+function pctFmt(v){ const s = (v>=0?'+':'') + Number(v||0).toFixed(2) + '%'; return `<span class="pct ${pctClass(v)}">${s}</span>`; }
 function cellHTML(cell){
   // cell: {pct, bank, trades, win}
+  const bank = Number(cell.bank||0);
+  const trades = Number(cell.trades||0);
+  const win = Number(cell.win||0);
   return `
     ${pctFmt(cell.pct)}
     <div class="stats">
-      <span class="pill"><span class="small">Bankroll</span> <b>${(cell.bank||0).toFixed(3)} BNB</b></span>
-      <span class="pill"><span class="small">Trades</span> <b>${cell.trades||0}</b></span>
-      <span class="pill"><span class="small">Win</span> <b>${Math.round((cell.win||0)*100)}%</b></span>
+      <span class="pill"><span class="small">Bankroll</span> <b>◎ ${bank.toFixed(3)} SOL</b></span>
+      <span class="pill"><span class="small">Trades</span> <b>${trades}</b></span>
+      <span class="pill"><span class="small">Win</span> <b>${Math.round(win*100)}%</b></span>
     </div>`;
 }
 
@@ -209,20 +214,19 @@ async function fetchJSON(u, opt){ const r = await fetch(u, opt||{}); if(!r.ok) t
 function applyTopCards(summary){
   if(!summary) return;
   if(summary.best){
-    $('#bestLabel').textContent = `${(summary.best.model_label||summary.best.model||'–')} • ${(summary.best.pct>0?'+':'')}${summary.best.pct.toFixed(2)}%`;
+    $('#bestLabel').textContent = `${(summary.best.model_label||summary.best.model||'–')} • ${(summary.best.pct>0?'+':'')}${Number(summary.best.pct||0).toFixed(2)}%`;
     $('#bestSub').textContent = `${(summary.best.behaviour_label||summary.best.behaviour||'')} • ${summary.best.trades||0} trades`;
   }
   if(summary.avg){
-    $('#avgPerf').textContent = `${(summary.avg.performance||0).toFixed(2)}%`;
+    $('#avgPerf').textContent = `${Number(summary.avg.performance||0).toFixed(2)}%`;
     $('#avgSub').textContent = `${summary.avg.trades||0} trades • ${Math.round((summary.avg.win||0)*100)}% win rate`;
   }
   if(typeof summary.total_trades === 'number'){ $('#totTrades').textContent = summary.total_trades; }
 }
 
-/* Expect backend shape:
-  GET /matrix/table -> {
-    table: { gpt5:{aggressive:{pct,bank,trades,win}, balanced:{..}, ...}, ... }
-  }
+/* Backend contract (preferred):
+  GET /matrix/table -> { table: { gpt5:{aggressive:{pct,bank,trades,win}, ...}, ... } }
+  Values are SOL-based (bank = bankroll in SOL).
 */
 function applyMatrix(tbl){
   if(!tbl || !tbl.table) return;
@@ -246,22 +250,21 @@ function applyMatrix(tbl){
   }).join('');
 }
 
-/* ---- Fallback builder from /live/summary (if /matrix/* not available) ---- */
+/* ---- Fallback builder from /live/summary (if /matrix/* not available) ----
+   Assumes /live/summary returns agents with SOL bankroll. */
 function buildFromLiveSummary(live){
-  // Map live snapshot into a “reactive” column; other columns are softened to look plausible.
   const table = {};
   MODELS.forEach(m=>{
     const a = (live.agents||[]).find(x=> (x.id||x.model) === m.id) || {};
-    const bank = +a.bankroll || 1.0;
+    const bankSOL = +a.bankroll || 1.0;      // already SOL
     const trades = +a.trades || 0;
     const win = (+a.win || +a.win_rate || .5);
-    const pctReactive = +a.pct || ((win-.5)*120); // rough guess if not provided
-
+    const pctReactive = Number(a.pct ?? ((win-.5)*120)); // %
     table[m.id] = {
-      aggressive: {pct: pctReactive*0.35 - 10, bank: bank*0.8, trades: Math.round(trades*0.25), win: Math.max(.35, win-0.1)},
-      balanced:   {pct: pctReactive*0.55,       bank: bank*0.95, trades: Math.round(trades*0.45), win: win},
-      defensive:  {pct: pctReactive*0.25 + 6,   bank: bank*1.02, trades: Math.round(trades*0.3),  win: Math.min(.75, win+0.08)},
-      reactive:   {pct: pctReactive,            bank: bank,      trades: trades,                  win: win}
+      aggressive: {pct: pctReactive*0.35 - 10, bank: bankSOL*0.8,  trades: Math.round(trades*0.25), win: Math.max(.35, win-0.1)},
+      balanced:   {pct: pctReactive*0.55,      bank: bankSOL*0.95, trades: Math.round(trades*0.45), win: win},
+      defensive:  {pct: pctReactive*0.25 + 6,  bank: bankSOL*1.02, trades: Math.round(trades*0.30), win: Math.min(.75, win+0.08)},
+      reactive:   {pct: pctReactive,           bank: bankSOL,      trades: trades,                  win: win}
     };
   });
   const best = (()=> {
@@ -281,10 +284,9 @@ function buildFromLiveSummary(live){
 
 /* ========= boot ========= */
 (async function init(){
-  const CFG = window.HA_CONFIG || {DEMO_MODE:true};
+  const CFG = window.HA_CONFIG || {DEMO_MODE:true}; // from assets/config.js if present
   const api = CFG.API_BASE;
 
-  // Prefer /matrix endpoints
   if(api){
     try{
       const [sum, tbl] = await Promise.allSettled([
@@ -294,7 +296,7 @@ function buildFromLiveSummary(live){
       if(sum.status==='fulfilled') applyTopCards(sum.value);
       if(tbl.status==='fulfilled' && tbl.value?.table){ applyMatrix(tbl.value); return; }
 
-      // Fallback to /live/summary
+      // Fallback to /live/summary (assumed SOL units)
       const live = await fetchJSON(api + '/live/summary');
       const built = buildFromLiveSummary(live || {});
       applyTopCards(built.summary); applyMatrix({table: built.table});
@@ -304,10 +306,8 @@ function buildFromLiveSummary(live){
     }
   }
 
-  // DEMO MODE
-  const demo = {
-    table:{},
-  };
+  // DEMO MODE (SOL units)
+  const demo = { table:{} };
   MODELS.forEach((m,i)=>{
     demo.table[m.id]={
       aggressive:{pct:[-26.9,-25.9,-51.9,-55.3][i], bank:0.73+i*0.01, trades:190+i*5, win:0.55-i*0.02},
@@ -323,10 +323,10 @@ function buildFromLiveSummary(live){
     total_trades:1729
   });
 
-  // tiny jitter to look alive (demo only)
+  // subtle demo jitter
   setInterval(()=>{
     document.querySelectorAll('#tbody .pct').forEach(el=>{
-      const n = parseFloat(el.textContent.replace('%',''));
+      const n = parseFloat(el.textContent.replace('%','')) || 0;
       const nn = n + (Math.random()-0.5)*0.3;
       el.textContent = (nn>=0?'+':'') + nn.toFixed(2) + '%';
       el.classList.toggle('up', nn>=0); el.classList.toggle('down', nn<0);
