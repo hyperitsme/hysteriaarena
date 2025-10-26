@@ -3,57 +3,67 @@ import express from 'express';
 import cors from 'cors';
 import http from 'http';
 import { WebSocketServer } from 'ws';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import { state } from './state.js';
 import { startEngine, toSummaryArray, seriesPayload } from './engine.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-// ---- CORS: izinkan domain kamu & render subdomain
-const ORIGINS = [
-  'https://hysteriaarena.site',
-  'https://www.hysteriaarena.site',
-  // fallback saat preview / testing:
-  'https://hysteriaarena.onrender.com',
-  'http://localhost:5173',
-  'http://localhost:8080'
-];
-app.use(cors({ origin: (o, cb)=> cb(null, !o || ORIGINS.includes(o)), methods: ['GET'] }));
+// Jika kamu host web & API di domain yang sama, CORS sebenarnya tak diperlukan,
+// tapi kita tetap izinkan untuk jaga-jaga preview dll.
+app.use(cors({ origin: true }));
 
-app.get('/healthz', (_,res)=> res.send('ok'));
+// Static files
+const PUB = path.join(__dirname, 'public');
+app.use(express.static(PUB, { maxAge: '5m', index: false }));
+
+// --- API (same-origin): /live/summary dan /live/series
+app.get('/healthz', (_, res) => res.send('ok'));
 
 app.get('/live/summary', (_, res) => {
-  res.json({ ok:true, agents: toSummaryArray(), prices: state.prices, ts: Date.now() });
+  res.json({ ok: true, agents: toSummaryArray(), prices: state.prices, ts: Date.now() });
 });
 
 app.get('/live/series', (req, res) => {
-  // range param bisa dipakai kalau nanti pecah ALL/24H
-  res.json({ ok:true, series: seriesPayload(), ts: Date.now() });
+  res.json({ ok: true, series: seriesPayload(), ts: Date.now() });
 });
 
-app.get('/', (_,res)=> res.json({ ok:true, service:'hysteriaarena-api' }));
+// Route untuk file HTML (multi-page)
+app.get('/', (_, res) => res.sendFile(path.join(PUB, 'index.html')));
+app.get('/live.html', (_, res) => res.sendFile(path.join(PUB, 'live.html')));
+app.get('/matrix.html', (_, res) => res.sendFile(path.join(PUB, 'matrix.html')));
+app.get('/rules.html', (_, res) => res.sendFile(path.join(PUB, 'rules.html')));
 
+// HTTP server + WS
 const server = http.createServer(app);
-
-// ---- WebSocket
 const wss = new WebSocketServer({ server, path: '/ws' });
-function broadcast(msg){
+
+// broadcast helper
+function broadcast(msg) {
   const data = JSON.stringify(msg);
   wss.clients.forEach(c => c.readyState === 1 && c.send(data));
 }
+
 wss.on('connection', (ws) => {
-  // kirim snapshot saat connect
-  ws.send(JSON.stringify({ type:'summary', payload:{ agents: toSummaryArray() }}));
-  ws.send(JSON.stringify({ type:'bootstrap', payload:{
+  // snapshot awal
+  ws.send(JSON.stringify({ type: 'summary', payload: { agents: toSummaryArray() } }));
+  ws.send(JSON.stringify({ type: 'bootstrap', payload: {
     trades: state.trades.slice(-10),
     chat: state.chat.slice(-10),
     series: seriesPayload()
   }}));
+  // heartbeat agar koneksi tetap hidup
+  const ping = setInterval(() => { try { ws.ping(); } catch(_) {} }, 25000);
+  ws.on('close', () => clearInterval(ping));
 });
 
 const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => {
-  console.log('API listening on :' + PORT);
-});
+server.listen(PORT, () => console.log('HysteriaArena running on :' + PORT));
 
-// start engine
+// jalankan mesin realtime
 startEngine(broadcast);
